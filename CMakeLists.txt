@@ -19,6 +19,11 @@ if(NOT TARGET KairoMath)
             "${KAIRO_MATH_SOURCE_DIR}"
             "${CMAKE_CURRENT_BINARY_DIR}/_deps/KairoMath"
         )
+    elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/KairoMath/CMakeLists.txt")
+        add_subdirectory(
+            "${CMAKE_CURRENT_SOURCE_DIR}/external/KairoMath"
+            "${CMAKE_CURRENT_BINARY_DIR}/_deps/KairoMath"
+        )
     elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../KairoMath/CMakeLists.txt")
         add_subdirectory(
             "${CMAKE_CURRENT_SOURCE_DIR}/../KairoMath"

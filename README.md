@@ -76,12 +76,26 @@ still exposing readable named helpers for shared query code.
 `KairoGeometry` is a C++23 module library. It depends on `KairoMath` but does
 not vendor or copy any KairoMath source into this repository.
 
+Clone with submodules when you want the repo to bring its pinned `KairoMath`
+dependency with it:
+
+```sh
+git clone --recursive https://github.com/swayam8624/KairoGeometry.git
+```
+
+If you already cloned without submodules, initialize the dependency with:
+
+```sh
+git submodule update --init --recursive
+```
+
 Dependency resolution order:
 
 1. `-DKAIRO_MATH_SOURCE_DIR=/path/to/KairoMath` when you want to point at an
    explicit local checkout.
-2. `../KairoMath` when developing inside the `Kairo/Foundation` workspace.
-3. `https://github.com/swayam8624/KairoMath.git` through CMake `FetchContent`
+2. `external/KairoMath` when the repository is cloned recursively.
+3. `../KairoMath` when developing inside the `Kairo/Foundation` workspace.
+4. `https://github.com/swayam8624/KairoMath.git` through CMake `FetchContent`
    when no local checkout is available.
 
 Configure with Ninja and a compiler that supports CMake C++ module dependency
