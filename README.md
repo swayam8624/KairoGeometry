@@ -65,7 +65,20 @@ import Kairo.Foundation.Geometry.Intersection;
 `ClosestPoint`, `Distance`, and `Intersection` provide named cross-primitive
 helpers such as `ClosestPointOnTriangle()`, `ClosestPointOnSegment()`,
 `DistanceToCapsule()`, `DistanceBetweenSegments()`, `RayAABB()`, `RayOBB()`,
-`CapsuleCapsule()`, and `OBBOBB()`.
+`RayCapsule()`, `SphereTriangle()`, `AABBCapsule()`, `TriangleAABB()`,
+`TriangleOBB()`, `TriangleCapsule()`, `TriangleTriangle()`, `CapsuleCapsule()`,
+and `OBBOBB()`.
+
+The intersection layer covers the current primitive collision matrix for rays,
+planes, spheres, triangles, AABBs, OBBs, and capsules. Symmetric pair overloads
+are provided for `Intersects(...)` where call order should not matter.
+
+### Verified Foundation Status
+
+The current Phase A geometry foundation is complete for primitive definitions,
+closest-point queries, distance queries, ray casts, and the narrow-phase
+intersection matrix across `Ray`, `Plane`, `Sphere`, `Triangle`, `AABB`, `OBB`,
+and `Capsule`.
 
 Generic overloads that already belong to primitive modules are not redeclared in
 the aggregate query modules. This keeps C++ module ownership unambiguous while

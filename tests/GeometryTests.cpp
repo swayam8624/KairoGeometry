@@ -269,6 +269,55 @@ namespace
         Require(obbHit.has_value(), "ray hits OBB");
         Require(Intersects(obb, box), "OBB intersects AABB");
         Require(Intersects(obb, sphere), "OBB intersects sphere");
+
+        const Capsulef capsule =
+            Capsulef::FromEndpointsRadius(
+                Vec3f(0.0f, -1.0f, 0.0f),
+                Vec3f(0.0f, 1.0f, 0.0f),
+                0.5f);
+
+        const std::optional<RayHitf> capsuleHit =
+            RayCapsule(ray, capsule);
+
+        Require(capsuleHit.has_value(), "ray hits capsule");
+        RequireNear(capsuleHit->Distance, 3.5f, "ray-capsule hit distance");
+
+        Require(PlaneOBB(plane, obb), "plane intersects OBB");
+        Require(!PlaneOBB(Planef::FromPointNormal(Vec3f(3.0f, 0.0f, 0.0f), Vec3f::UnitX()), obb), "separated plane misses OBB");
+        Require(PlaneCapsule(Planef::XZ(), capsule), "plane intersects capsule");
+
+        Require(PlaneTriangle(Planef::XY(), triangle), "plane intersects triangle");
+        Require(SphereTriangle(Spheref::FromCenterRadius(Vec3f(0.25f, 0.25f, 0.2f), 0.25f), triangle), "sphere intersects triangle");
+        Require(!SphereTriangle(Spheref::FromCenterRadius(Vec3f(4.0f, 4.0f, 4.0f), 0.25f), triangle), "sphere misses triangle");
+
+        const Capsulef nearBoxCapsule =
+            Capsulef::FromEndpointsRadius(
+                Vec3f(-0.25f, 0.75f, 0.0f),
+                Vec3f(0.25f, 0.75f, 0.0f),
+                0.3f);
+
+        Require(AABBCapsule(box, nearBoxCapsule), "AABB intersects capsule");
+        Require(OBBCapsule(obb, nearBoxCapsule), "OBB intersects capsule");
+        Require(!AABBCapsule(box, Capsulef::FromEndpointsRadius(Vec3f(3.0f, 3.0f, 3.0f), Vec3f(4.0f, 3.0f, 3.0f), 0.1f)), "AABB misses capsule");
+
+        const AABBf thinBox =
+            AABBf::FromMinMax(
+                Vec3f(0.2f, 0.2f, -0.1f),
+                Vec3f(0.4f, 0.4f, 0.1f));
+
+        Require(TriangleAABB(triangle, thinBox), "triangle intersects AABB");
+        Require(TriangleOBB(triangle, OBBf::FromAABB(thinBox)), "triangle intersects OBB");
+        Require(TriangleCapsule(triangle, Capsulef::FromEndpointsRadius(Vec3f(0.25f, 0.25f, -1.0f), Vec3f(0.25f, 0.25f, 1.0f), 0.05f)), "triangle intersects capsule");
+
+        const Trianglef coplanarTriangle =
+            Trianglef::FromPoints(
+                Vec3f(0.25f, 0.25f, 0.0f),
+                Vec3f(1.0f, 0.25f, 0.0f),
+                Vec3f(0.25f, 1.0f, 0.0f));
+
+        Require(TriangleTriangle(triangle, coplanarTriangle), "coplanar triangles intersect");
+        Require(Intersects(capsule, triangle), "generic capsule triangle intersection");
+        Require(Intersects(triangle, box), "generic triangle AABB intersection");
     }
 
     void TestFrustum()

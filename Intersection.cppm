@@ -19,6 +19,7 @@ import Kairo.Foundation.Geometry.Triangle;
 import Kairo.Foundation.Geometry.AABB;
 import Kairo.Foundation.Geometry.Capsule;
 import Kairo.Foundation.Geometry.OBB;
+import Kairo.Foundation.Geometry.ClosestPoint;
 
 export namespace kairo::foundation::geometry
 {
@@ -558,6 +559,528 @@ export namespace kairo::foundation::geometry
     }
 
     //=========================================================
+    // Intersection Detail Helpers
+    //=========================================================
+
+    namespace intersection_detail
+    {
+        template<FloatingPoint T>
+        [[nodiscard]]
+        constexpr bool OverlapsOnAxis(
+            const Triangle<T>& triangle,
+            const AABB<T>& box,
+            const Vector3<T>& axis,
+            T epsilon) noexcept
+        {
+            const T axisLengthSquared =
+                axis.LengthSquared();
+
+            if (axisLengthSquared <= epsilon * epsilon)
+            {
+                return true;
+            }
+
+            const T p0 =
+                Dot(triangle.A, axis);
+
+            const T p1 =
+                Dot(triangle.B, axis);
+
+            const T p2 =
+                Dot(triangle.C, axis);
+
+            const T triangleMin =
+                Min(
+                    p0,
+                    Min(p1, p2));
+
+            const T triangleMax =
+                Max(
+                    p0,
+                    Max(p1, p2));
+
+            const Vector3<T> center =
+                box.Center();
+
+            const Vector3<T> extent =
+                box.Extent();
+
+            const T boxCenter =
+                Dot(center, axis);
+
+            const T boxRadius =
+                extent.x * std::abs(axis.x) +
+                extent.y * std::abs(axis.y) +
+                extent.z * std::abs(axis.z);
+
+            return
+                triangleMin <= boxCenter + boxRadius + epsilon &&
+                triangleMax >= boxCenter - boxRadius - epsilon;
+        }
+
+        template<FloatingPoint T>
+        [[nodiscard]]
+        constexpr bool TriangleAABBOverlap(
+            const Triangle<T>& triangle,
+            const AABB<T>& box,
+            T epsilon) noexcept
+        {
+            if (!box.IsValid())
+            {
+                return false;
+            }
+
+            const Vector3<T> edge0 =
+                triangle.B - triangle.A;
+
+            const Vector3<T> edge1 =
+                triangle.C - triangle.B;
+
+            const Vector3<T> edge2 =
+                triangle.A - triangle.C;
+
+            const Vector3<T> axes[13]
+            {
+                Vector3<T>::UnitX(),
+                Vector3<T>::UnitY(),
+                Vector3<T>::UnitZ(),
+                Cross(edge0, edge1),
+                Cross(edge0, Vector3<T>::UnitX()),
+                Cross(edge0, Vector3<T>::UnitY()),
+                Cross(edge0, Vector3<T>::UnitZ()),
+                Cross(edge1, Vector3<T>::UnitX()),
+                Cross(edge1, Vector3<T>::UnitY()),
+                Cross(edge1, Vector3<T>::UnitZ()),
+                Cross(edge2, Vector3<T>::UnitX()),
+                Cross(edge2, Vector3<T>::UnitY()),
+                Cross(edge2, Vector3<T>::UnitZ())
+            };
+
+            for (const Vector3<T>& axis : axes)
+            {
+                if (!OverlapsOnAxis(
+                        triangle,
+                        box,
+                        axis,
+                        epsilon))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        template<FloatingPoint T>
+        [[nodiscard]]
+        constexpr Segment<T> AABBEdge(
+            const AABB<T>& box,
+            std::size_t index) noexcept
+        {
+            constexpr std::size_t edgeCorners[12][2]
+            {
+                { 0, 1 }, { 2, 3 }, { 4, 5 }, { 6, 7 },
+                { 0, 2 }, { 1, 3 }, { 4, 6 }, { 5, 7 },
+                { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 }
+            };
+
+            return
+            {
+                box.Corner(edgeCorners[index][0]),
+                box.Corner(edgeCorners[index][1])
+            };
+        }
+
+        template<FloatingPoint T>
+        [[nodiscard]]
+        T DistanceSquaredSegmentAABB(
+            const Segment<T>& segment,
+            const AABB<T>& box) noexcept
+        {
+            const Ray<T> ray
+            {
+                segment.Start,
+                segment.End - segment.Start
+            };
+
+            const std::optional<RayHit<T>> hit =
+                RayAABB(
+                    ray,
+                    box);
+
+            if (hit &&
+                hit->Distance >= T(0) &&
+                hit->Distance <= T(1))
+            {
+                return T(0);
+            }
+
+            T distanceSquared =
+                Min(
+                    box.DistanceSquaredToPoint(segment.Start),
+                    box.DistanceSquaredToPoint(segment.End));
+
+            for (std::size_t i = 0; i < 12; ++i)
+            {
+                distanceSquared =
+                    Min(
+                        distanceSquared,
+                        DistanceSquared(
+                            segment,
+                            AABBEdge(box, i)));
+            }
+
+            return distanceSquared;
+        }
+
+        template<FloatingPoint T>
+        [[nodiscard]]
+        bool SegmentTriangle(
+            const Segment<T>& segment,
+            const Triangle<T>& triangle,
+            T epsilon) noexcept
+        {
+            const Ray<T> ray
+            {
+                segment.Start,
+                segment.End - segment.Start
+            };
+
+            const std::optional<RayHit<T>> hit =
+                RayTriangle(
+                    ray,
+                    triangle,
+                    epsilon);
+
+            return
+                hit &&
+                hit->Distance >= -epsilon &&
+                hit->Distance <= T(1) + epsilon;
+        }
+
+        template<FloatingPoint T>
+        [[nodiscard]]
+        bool CoplanarTriangleTriangle(
+            const Triangle<T>& lhs,
+            const Triangle<T>& rhs,
+            T epsilon) noexcept
+        {
+            const Vector3<T> normal =
+                Abs(lhs.UnnormalizedNormal());
+
+            int dropAxis = 2;
+
+            if (normal.x >= normal.y &&
+                normal.x >= normal.z)
+            {
+                dropAxis = 0;
+            }
+            else if (normal.y >= normal.z)
+            {
+                dropAxis = 1;
+            }
+
+            const int axis0 =
+                dropAxis == 0 ? 1 : 0;
+
+            const int axis1 =
+                dropAxis == 2 ? 1 : 2;
+
+            auto component =
+                [](
+                    const Vector3<T>& point,
+                    int axis) noexcept -> T
+                {
+                    return axis == 0
+                        ? point.x
+                        : (axis == 1 ? point.y : point.z);
+                };
+
+            auto orient =
+                [&](const Vector3<T>& a,
+                    const Vector3<T>& b,
+                    const Vector3<T>& c) noexcept -> T
+                {
+                    const T ax =
+                        component(a, axis0);
+                    const T ay =
+                        component(a, axis1);
+                    const T bx =
+                        component(b, axis0);
+                    const T by =
+                        component(b, axis1);
+                    const T cx =
+                        component(c, axis0);
+                    const T cy =
+                        component(c, axis1);
+
+                    return
+                        (bx - ax) * (cy - ay) -
+                        (by - ay) * (cx - ax);
+                };
+
+            auto pointInTriangle =
+                [&](const Vector3<T>& point,
+                    const Triangle<T>& triangle) noexcept -> bool
+                {
+                    const T o0 =
+                        orient(triangle.A, triangle.B, point);
+                    const T o1 =
+                        orient(triangle.B, triangle.C, point);
+                    const T o2 =
+                        orient(triangle.C, triangle.A, point);
+
+                    return
+                        (o0 >= -epsilon && o1 >= -epsilon && o2 >= -epsilon) ||
+                        (o0 <= epsilon && o1 <= epsilon && o2 <= epsilon);
+                };
+
+            auto segmentsOverlap =
+                [&](const Vector3<T>& a0,
+                    const Vector3<T>& a1,
+                    const Vector3<T>& b0,
+                    const Vector3<T>& b1) noexcept -> bool
+                {
+                    const T o0 =
+                        orient(a0, a1, b0);
+                    const T o1 =
+                        orient(a0, a1, b1);
+                    const T o2 =
+                        orient(b0, b1, a0);
+                    const T o3 =
+                        orient(b0, b1, a1);
+
+                    return
+                        ((o0 >= -epsilon && o1 <= epsilon) ||
+                         (o0 <= epsilon && o1 >= -epsilon)) &&
+                        ((o2 >= -epsilon && o3 <= epsilon) ||
+                         (o2 <= epsilon && o3 >= -epsilon));
+                };
+
+            const Vector3<T> lhsEdges[3][2]
+            {
+                { lhs.A, lhs.B },
+                { lhs.B, lhs.C },
+                { lhs.C, lhs.A }
+            };
+
+            const Vector3<T> rhsEdges[3][2]
+            {
+                { rhs.A, rhs.B },
+                { rhs.B, rhs.C },
+                { rhs.C, rhs.A }
+            };
+
+            for (const auto& lhsEdge : lhsEdges)
+            {
+                for (const auto& rhsEdge : rhsEdges)
+                {
+                    if (segmentsOverlap(
+                            lhsEdge[0],
+                            lhsEdge[1],
+                            rhsEdge[0],
+                            rhsEdge[1]))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return
+                pointInTriangle(lhs.A, rhs) ||
+                pointInTriangle(rhs.A, lhs);
+        }
+
+        template<FloatingPoint T>
+        [[nodiscard]]
+        T DistanceSquaredSegmentTriangle(
+            const Segment<T>& segment,
+            const Triangle<T>& triangle,
+            T epsilon) noexcept
+        {
+            if (SegmentTriangle(
+                    segment,
+                    triangle,
+                    epsilon))
+            {
+                return T(0);
+            }
+
+            T distanceSquared =
+                Min(
+                    DistanceSquared(
+                        segment.Start,
+                        ClosestPointOnTriangle(
+                            triangle,
+                            segment.Start)),
+                    DistanceSquared(
+                        segment.End,
+                        ClosestPointOnTriangle(
+                            triangle,
+                            segment.End)));
+
+            const Segment<T> edges[3]
+            {
+                { triangle.A, triangle.B },
+                { triangle.B, triangle.C },
+                { triangle.C, triangle.A }
+            };
+
+            for (const Segment<T>& edge : edges)
+            {
+                distanceSquared =
+                    Min(
+                        distanceSquared,
+                        DistanceSquared(
+                            segment,
+                            edge));
+            }
+
+            return distanceSquared;
+        }
+    }
+
+    //=========================================================
+    // Ray / Capsule
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    std::optional<RayHit<T>> RayCapsule(
+        const Ray<T>& ray,
+        const Capsule<T>& capsule,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        const Segment<T> axis
+        {
+            capsule.Start,
+            capsule.End
+        };
+
+        if (axis.IsPoint(epsilon))
+        {
+            return RaySphere(
+                ray,
+                Sphere<T>
+                {
+                    capsule.Start,
+                    capsule.Radius
+                },
+                epsilon);
+        }
+
+        std::optional<RayHit<T>> bestHit =
+            std::nullopt;
+
+        auto consider =
+            [&](const std::optional<RayHit<T>>& hit) noexcept
+            {
+                if (hit &&
+                    (!bestHit ||
+                     hit->Distance < bestHit->Distance))
+                {
+                    bestHit = hit;
+                }
+            };
+
+        consider(
+            RaySphere(
+                ray,
+                Sphere<T>{ capsule.Start, capsule.Radius },
+                epsilon));
+
+        consider(
+            RaySphere(
+                ray,
+                Sphere<T>{ capsule.End, capsule.Radius },
+                epsilon));
+
+        const Vector3<T> d =
+            capsule.End - capsule.Start;
+
+        const Vector3<T> m =
+            ray.Origin - capsule.Start;
+
+        const Vector3<T> n =
+            ray.Direction;
+
+        const T md =
+            Dot(m, d);
+
+        const T nd =
+            Dot(n, d);
+
+        const T dd =
+            Dot(d, d);
+
+        const T nn =
+            Dot(n, n);
+
+        const T a =
+            dd * nn -
+            nd * nd;
+
+        if (std::abs(a) > epsilon)
+        {
+            const T k =
+                Dot(m, m) -
+                capsule.Radius * capsule.Radius;
+
+            const T b =
+                dd * Dot(m, n) -
+                md * nd;
+
+            const T c =
+                dd * k -
+                md * md;
+
+            const T discriminant =
+                b * b -
+                a * c;
+
+            if (discriminant >= T(0))
+            {
+                const T t =
+                    (-b - std::sqrt(discriminant)) /
+                    a;
+
+                const T y =
+                    md + t * nd;
+
+                if (t >= T(0) &&
+                    y >= T(0) &&
+                    y <= dd)
+                {
+                    const Vector3<T> point =
+                        ray.GetPoint(t);
+
+                    const Vector3<T> axisPoint =
+                        capsule.Start +
+                        d * (y / dd);
+
+                    const RayHit<T> bodyHit
+                    {
+                        t,
+                        point,
+                        SafeNormalize(
+                            point - axisPoint,
+                            Vector3<T>::Up())
+                    };
+
+                    if (!bestHit ||
+                        bodyHit.Distance < bestHit->Distance)
+                    {
+                        bestHit = bodyHit;
+                    }
+                }
+            }
+        }
+
+        return bestHit;
+    }
+
+    //=========================================================
     // Sphere / Sphere
     //=========================================================
 
@@ -695,6 +1218,39 @@ export namespace kairo::foundation::geometry
     }
 
     //=========================================================
+    // Sphere / Triangle
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool SphereTriangle(
+        const Sphere<T>& sphere,
+        const Triangle<T>& triangle) noexcept
+    {
+        const Vector3<T> closest =
+            ClosestPointOnTriangle(
+                triangle,
+                sphere.Center);
+
+        return
+            DistanceSquared(
+                sphere.Center,
+                closest)
+            <= sphere.Radius * sphere.Radius;
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool TriangleSphere(
+        const Triangle<T>& triangle,
+        const Sphere<T>& sphere) noexcept
+    {
+        return SphereTriangle(
+            sphere,
+            triangle);
+    }
+
+    //=========================================================
     // Sphere / OBB
     //=========================================================
 
@@ -730,6 +1286,78 @@ export namespace kairo::foundation::geometry
         return SphereOBB(
             sphere,
             box);
+    }
+
+    //=========================================================
+    // AABB / Capsule
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool AABBCapsule(
+        const AABB<T>& box,
+        const Capsule<T>& capsule) noexcept
+    {
+        const Segment<T> axis
+        {
+            capsule.Start,
+            capsule.End
+        };
+
+        return
+            intersection_detail::DistanceSquaredSegmentAABB(
+                axis,
+                box)
+            <= capsule.Radius * capsule.Radius;
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool CapsuleAABB(
+        const Capsule<T>& capsule,
+        const AABB<T>& box) noexcept
+    {
+        return AABBCapsule(
+            box,
+            capsule);
+    }
+
+    //=========================================================
+    // OBB / Capsule
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool OBBCapsule(
+        const OBB<T>& box,
+        const Capsule<T>& capsule) noexcept
+    {
+        const Capsule<T> localCapsule
+        {
+            box.WorldToLocalPoint(capsule.Start),
+            box.WorldToLocalPoint(capsule.End),
+            capsule.Radius
+        };
+
+        const AABB<T> localBox =
+            AABB<T>::FromMinMax(
+                -box.HalfExtents,
+                box.HalfExtents);
+
+        return AABBCapsule(
+            localBox,
+            localCapsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool CapsuleOBB(
+        const Capsule<T>& capsule,
+        const OBB<T>& box) noexcept
+    {
+        return OBBCapsule(
+            box,
+            capsule);
     }
 
     //=========================================================
@@ -831,6 +1459,348 @@ export namespace kairo::foundation::geometry
         return PlaneAABB(
             plane,
             box);
+    }
+
+    //=========================================================
+    // Plane / OBB
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool PlaneOBB(
+        const Plane<T>& plane,
+        const OBB<T>& box) noexcept
+    {
+        const T projectedRadius =
+            box.HalfExtents.x * std::abs(Dot(plane.Normal, box.Axes[0])) +
+            box.HalfExtents.y * std::abs(Dot(plane.Normal, box.Axes[1])) +
+            box.HalfExtents.z * std::abs(Dot(plane.Normal, box.Axes[2]));
+
+        const T signedDistance =
+            plane.SignedDistanceToPoint(
+                box.Center);
+
+        return
+            std::abs(signedDistance)
+            <= projectedRadius;
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool OBBPlane(
+        const OBB<T>& box,
+        const Plane<T>& plane) noexcept
+    {
+        return PlaneOBB(
+            plane,
+            box);
+    }
+
+    //=========================================================
+    // Plane / Capsule
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool PlaneCapsule(
+        const Plane<T>& plane,
+        const Capsule<T>& capsule) noexcept
+    {
+        const T startDistance =
+            plane.SignedDistanceToPoint(
+                capsule.Start);
+
+        const T endDistance =
+            plane.SignedDistanceToPoint(
+                capsule.End);
+
+        if ((startDistance <= T(0) && endDistance >= T(0)) ||
+            (startDistance >= T(0) && endDistance <= T(0)))
+        {
+            return true;
+        }
+
+        return
+            Min(
+                std::abs(startDistance),
+                std::abs(endDistance))
+            <= capsule.Radius;
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool CapsulePlane(
+        const Capsule<T>& capsule,
+        const Plane<T>& plane) noexcept
+    {
+        return PlaneCapsule(
+            plane,
+            capsule);
+    }
+
+    //=========================================================
+    // Plane / Triangle
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool PlaneTriangle(
+        const Plane<T>& plane,
+        const Triangle<T>& triangle,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        const T da =
+            plane.SignedDistanceToPoint(
+                triangle.A);
+
+        const T db =
+            plane.SignedDistanceToPoint(
+                triangle.B);
+
+        const T dc =
+            plane.SignedDistanceToPoint(
+                triangle.C);
+
+        const T minDistance =
+            Min(
+                da,
+                Min(db, dc));
+
+        const T maxDistance =
+            Max(
+                da,
+                Max(db, dc));
+
+        return
+            minDistance <= epsilon &&
+            maxDistance >= -epsilon;
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool TrianglePlane(
+        const Triangle<T>& triangle,
+        const Plane<T>& plane,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        return PlaneTriangle(
+            plane,
+            triangle,
+            epsilon);
+    }
+
+    //=========================================================
+    // Triangle / AABB
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool TriangleAABB(
+        const Triangle<T>& triangle,
+        const AABB<T>& box,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        return intersection_detail::TriangleAABBOverlap(
+            triangle,
+            box,
+            epsilon);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool AABBTriangle(
+        const AABB<T>& box,
+        const Triangle<T>& triangle,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        return TriangleAABB(
+            triangle,
+            box,
+            epsilon);
+    }
+
+    //=========================================================
+    // Triangle / OBB
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool TriangleOBB(
+        const Triangle<T>& triangle,
+        const OBB<T>& box,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        const Triangle<T> localTriangle
+        {
+            box.WorldToLocalPoint(triangle.A),
+            box.WorldToLocalPoint(triangle.B),
+            box.WorldToLocalPoint(triangle.C)
+        };
+
+        const AABB<T> localBox =
+            AABB<T>::FromMinMax(
+                -box.HalfExtents,
+                box.HalfExtents);
+
+        return TriangleAABB(
+            localTriangle,
+            localBox,
+            epsilon);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool OBBTriangle(
+        const OBB<T>& box,
+        const Triangle<T>& triangle,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        return TriangleOBB(
+            triangle,
+            box,
+            epsilon);
+    }
+
+    //=========================================================
+    // Triangle / Capsule
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool TriangleCapsule(
+        const Triangle<T>& triangle,
+        const Capsule<T>& capsule,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        const Segment<T> axis
+        {
+            capsule.Start,
+            capsule.End
+        };
+
+        return
+            intersection_detail::DistanceSquaredSegmentTriangle(
+                axis,
+                triangle,
+                epsilon)
+            <= capsule.Radius * capsule.Radius;
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool CapsuleTriangle(
+        const Capsule<T>& capsule,
+        const Triangle<T>& triangle,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        return TriangleCapsule(
+            triangle,
+            capsule,
+            epsilon);
+    }
+
+    //=========================================================
+    // Triangle / Triangle
+    //=========================================================
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool TriangleTriangle(
+        const Triangle<T>& lhs,
+        const Triangle<T>& rhs,
+        T epsilon =
+            std::numeric_limits<T>::epsilon() * T(100)) noexcept
+    {
+        const Plane<T> lhsPlane =
+            lhs.ToPlane();
+
+        const T rda =
+            lhsPlane.SignedDistanceToPoint(rhs.A);
+        const T rdb =
+            lhsPlane.SignedDistanceToPoint(rhs.B);
+        const T rdc =
+            lhsPlane.SignedDistanceToPoint(rhs.C);
+
+        if ((rda > epsilon && rdb > epsilon && rdc > epsilon) ||
+            (rda < -epsilon && rdb < -epsilon && rdc < -epsilon))
+        {
+            return false;
+        }
+
+        const Plane<T> rhsPlane =
+            rhs.ToPlane();
+
+        const T lda =
+            rhsPlane.SignedDistanceToPoint(lhs.A);
+        const T ldb =
+            rhsPlane.SignedDistanceToPoint(lhs.B);
+        const T ldc =
+            rhsPlane.SignedDistanceToPoint(lhs.C);
+
+        if ((lda > epsilon && ldb > epsilon && ldc > epsilon) ||
+            (lda < -epsilon && ldb < -epsilon && ldc < -epsilon))
+        {
+            return false;
+        }
+
+        if (std::abs(rda) <= epsilon &&
+            std::abs(rdb) <= epsilon &&
+            std::abs(rdc) <= epsilon &&
+            std::abs(lda) <= epsilon &&
+            std::abs(ldb) <= epsilon &&
+            std::abs(ldc) <= epsilon)
+        {
+            return intersection_detail::CoplanarTriangleTriangle(
+                lhs,
+                rhs,
+                epsilon);
+        }
+
+        const Segment<T> lhsEdges[3]
+        {
+            { lhs.A, lhs.B },
+            { lhs.B, lhs.C },
+            { lhs.C, lhs.A }
+        };
+
+        const Segment<T> rhsEdges[3]
+        {
+            { rhs.A, rhs.B },
+            { rhs.B, rhs.C },
+            { rhs.C, rhs.A }
+        };
+
+        for (const Segment<T>& edge : lhsEdges)
+        {
+            if (intersection_detail::SegmentTriangle(
+                    edge,
+                    rhs,
+                    epsilon))
+            {
+                return true;
+            }
+        }
+
+        for (const Segment<T>& edge : rhsEdges)
+        {
+            if (intersection_detail::SegmentTriangle(
+                    edge,
+                    lhs,
+                    epsilon))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //=========================================================
@@ -1142,6 +2112,28 @@ export namespace kairo::foundation::geometry
             rhs);
     }
 
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Sphere<T>& sphere,
+        const Triangle<T>& triangle) noexcept
+    {
+        return SphereTriangle(
+            sphere,
+            triangle);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Triangle<T>& triangle,
+        const Sphere<T>& sphere) noexcept
+    {
+        return SphereTriangle(
+            sphere,
+            triangle);
+    }
+
     /// Input: function parameters as declared by `Intersects`.
     /// Output: the computed value described by the function name and return type.
     /// Task: provide the `Intersects` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
@@ -1170,6 +2162,50 @@ export namespace kairo::foundation::geometry
             box);
     }
 
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const AABB<T>& box,
+        const Capsule<T>& capsule) noexcept
+    {
+        return AABBCapsule(
+            box,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Capsule<T>& capsule,
+        const AABB<T>& box) noexcept
+    {
+        return AABBCapsule(
+            box,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const OBB<T>& box,
+        const Capsule<T>& capsule) noexcept
+    {
+        return OBBCapsule(
+            box,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Capsule<T>& capsule,
+        const OBB<T>& box) noexcept
+    {
+        return OBBCapsule(
+            box,
+            capsule);
+    }
+
     /// Input: function parameters as declared by `Intersects`.
     /// Output: the computed value described by the function name and return type.
     /// Task: provide the `Intersects` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
@@ -1196,6 +2232,149 @@ export namespace kairo::foundation::geometry
         return AABBOBB(
             aabb,
             obb);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Plane<T>& plane,
+        const OBB<T>& box) noexcept
+    {
+        return PlaneOBB(
+            plane,
+            box);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const OBB<T>& box,
+        const Plane<T>& plane) noexcept
+    {
+        return PlaneOBB(
+            plane,
+            box);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Plane<T>& plane,
+        const Capsule<T>& capsule) noexcept
+    {
+        return PlaneCapsule(
+            plane,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Capsule<T>& capsule,
+        const Plane<T>& plane) noexcept
+    {
+        return PlaneCapsule(
+            plane,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Plane<T>& plane,
+        const Triangle<T>& triangle) noexcept
+    {
+        return PlaneTriangle(
+            plane,
+            triangle);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Triangle<T>& triangle,
+        const Plane<T>& plane) noexcept
+    {
+        return PlaneTriangle(
+            plane,
+            triangle);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool Intersects(
+        const Triangle<T>& triangle,
+        const AABB<T>& box) noexcept
+    {
+        return TriangleAABB(
+            triangle,
+            box);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool Intersects(
+        const AABB<T>& box,
+        const Triangle<T>& triangle) noexcept
+    {
+        return TriangleAABB(
+            triangle,
+            box);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool Intersects(
+        const Triangle<T>& triangle,
+        const OBB<T>& box) noexcept
+    {
+        return TriangleOBB(
+            triangle,
+            box);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    constexpr bool Intersects(
+        const OBB<T>& box,
+        const Triangle<T>& triangle) noexcept
+    {
+        return TriangleOBB(
+            triangle,
+            box);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Triangle<T>& triangle,
+        const Capsule<T>& capsule) noexcept
+    {
+        return TriangleCapsule(
+            triangle,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Capsule<T>& capsule,
+        const Triangle<T>& triangle) noexcept
+    {
+        return TriangleCapsule(
+            triangle,
+            capsule);
+    }
+
+    template<FloatingPoint T>
+    [[nodiscard]]
+    bool Intersects(
+        const Triangle<T>& lhs,
+        const Triangle<T>& rhs) noexcept
+    {
+        return TriangleTriangle(
+            lhs,
+            rhs);
     }
 
     /// Input: function parameters as declared by `Intersects`.
