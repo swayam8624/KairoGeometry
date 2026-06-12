@@ -69,9 +69,41 @@ helpers such as `ClosestPointOnTriangle()`, `ClosestPointOnSegment()`,
 `TriangleOBB()`, `TriangleCapsule()`, `TriangleTriangle()`, `CapsuleCapsule()`,
 and `OBBOBB()`.
 
-The intersection layer covers the current primitive collision matrix for rays,
-planes, spheres, triangles, AABBs, OBBs, and capsules. Symmetric pair overloads
-are provided for `Intersects(...)` where call order should not matter.
+The intersection layer currently covers the audited narrow-phase pairs below.
+Symmetric pair overloads are provided for `Intersects(...)` where call order
+should not matter.
+
+| Query | Status |
+| --- | --- |
+| Ray-Plane | yes |
+| Ray-Sphere | yes |
+| Ray-Triangle | yes |
+| Ray-AABB | yes |
+| Ray-OBB | yes |
+| Ray-Capsule | yes |
+| Plane-Sphere | yes |
+| Plane-AABB | yes |
+| Plane-OBB | yes |
+| Plane-Capsule | yes |
+| Plane-Triangle | yes |
+| Sphere-Sphere | yes |
+| Sphere-AABB | yes |
+| Sphere-OBB | yes |
+| Sphere-Capsule | yes |
+| Sphere-Triangle | yes |
+| AABB-AABB | yes |
+| AABB-OBB | yes |
+| AABB-Capsule | yes |
+| AABB-Triangle | yes |
+| OBB-OBB | yes |
+| OBB-Capsule | yes |
+| OBB-Triangle | yes |
+| Capsule-Capsule | yes |
+| Capsule-Triangle | yes |
+| Triangle-Triangle | yes |
+| Frustum-Sphere | yes |
+| Frustum-AABB | yes |
+| Frustum-OBB | yes |
 
 ### Verified Foundation Status
 

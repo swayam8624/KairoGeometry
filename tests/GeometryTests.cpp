@@ -282,6 +282,28 @@ namespace
         Require(capsuleHit.has_value(), "ray hits capsule");
         RequireNear(capsuleHit->Distance, 3.5f, "ray-capsule hit distance");
 
+        const Capsulef insideCapsule =
+            Capsulef::FromEndpointsRadius(
+                Vec3f(0.0f, 0.0f, 0.0f),
+                Vec3f(0.0f, 6.0f, 0.0f),
+                1.0f);
+
+        const Rayf insideRay
+        {
+            Vec3f(0.5f, 3.0f, 0.0f),
+            Vec3f::UnitX()
+        };
+
+        const std::optional<RayHitf> insideCapsuleHit =
+            RayCapsule(
+                insideRay,
+                insideCapsule);
+
+        Require(insideCapsuleHit.has_value(), "ray starting inside capsule body exits through body");
+        RequireNear(insideCapsuleHit->Distance, 0.5f, "ray-capsule body exit distance");
+        RequireNear(insideCapsuleHit->Point, Vec3f(1.0f, 3.0f, 0.0f), "ray-capsule body exit point");
+        RequireNear(insideCapsuleHit->Normal, Vec3f::UnitX(), "ray-capsule body exit normal");
+
         Require(PlaneOBB(plane, obb), "plane intersects OBB");
         Require(!PlaneOBB(Planef::FromPointNormal(Vec3f(3.0f, 0.0f, 0.0f), Vec3f::UnitX()), obb), "separated plane misses OBB");
         Require(PlaneCapsule(Planef::XZ(), capsule), "plane intersects capsule");
@@ -337,6 +359,32 @@ namespace
         Require(frustum.GetCorners(corners), "frustum corners can be reconstructed");
         RequireNear(corners[0], Vec3f(-1.0f, -1.0f, 0.0f), "frustum left-bottom-near corner");
         RequireNear(corners[7], Vec3f(1.0f, 1.0f, 1.0f), "frustum right-top-far corner");
+
+        const Mat4f cameraView =
+            LookAt(
+                Vec3f(0.0f, 0.0f, 5.0f),
+                Vec3f::Zero(),
+                Vec3f::UnitY());
+
+        const Mat4f cameraProjection =
+            Perspective(
+                1.57079632679f,
+                1.0f,
+                0.1f,
+                20.0f);
+
+        const Frustumf cameraFrustum =
+            Frustumf::FromViewProjection(
+                cameraProjection * cameraView);
+
+        Require(cameraFrustum.IsValid(), "perspective camera frustum is valid");
+        Require(cameraFrustum.ContainsPoint(Vec3f::Zero()), "perspective frustum contains target");
+        Require(!cameraFrustum.ContainsPoint(Vec3f(20.0f, 0.0f, 0.0f)), "perspective frustum rejects outside side point");
+        Require(!cameraFrustum.ContainsPoint(Vec3f(0.0f, 0.0f, 6.0f)), "perspective frustum rejects point behind camera");
+        Require(cameraFrustum.IntersectsSphere(Spheref::FromCenterRadius(Vec3f::Zero(), 0.5f)), "perspective frustum intersects target sphere");
+        Require(cameraFrustum.IntersectsAABB(AABBf::FromMinMax(Vec3f(-1.0f, -1.0f, -1.0f), Vec3f(1.0f, 1.0f, 1.0f))), "perspective frustum intersects target AABB");
+        Require(!cameraFrustum.IntersectsAABB(AABBf::FromMinMax(Vec3f(30.0f, -1.0f, -1.0f), Vec3f(32.0f, 1.0f, 1.0f))), "perspective frustum rejects far side AABB");
+        Require(cameraFrustum.TryGetCorners().has_value(), "perspective frustum corners can be reconstructed safely");
     }
 
     void TestDeterministicStress()

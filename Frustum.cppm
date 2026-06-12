@@ -6,6 +6,7 @@ module;
 #include <concepts>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <type_traits>
 
 export module Kairo.Foundation.Geometry.Frustum;
@@ -351,9 +352,24 @@ export namespace kairo::foundation::geometry
                 intersectPlanes(Left, Top, Far, corners[6]) &&
                 intersectPlanes(Right, Top, Far, corners[7]);
         }
-        /// Input: function parameters as declared by `this function`.
-        /// Output: the computed value described by the function name and return type.
-        /// Task: provide the `this function` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
+
+        /// Input: optional epsilon used to reject degenerate three-plane intersections.
+        /// Output: reconstructed corners, or empty when any corner cannot be computed.
+        /// Task: provide a release-safe API for callers that accept malformed or
+        /// degenerate frustum input at runtime.
+        [[nodiscard]]
+        std::optional<std::array<Vector3<T>, 8>> TryGetCorners(
+            T epsilon =
+                std::numeric_limits<T>::epsilon() * T(100)) const noexcept
+        {
+            std::array<Vector3<T>, 8> corners {};
+            if (!GetCorners(corners, epsilon))
+            {
+                return std::nullopt;
+            }
+
+            return corners;
+        }
 
         [[nodiscard]]
         std::array<Vector3<T>, 8> Corners() const noexcept
@@ -362,7 +378,7 @@ export namespace kairo::foundation::geometry
             const bool valid =
                 GetCorners(corners);
 
-            (void)valid;
+            assert(valid);
             return corners;
         }
 

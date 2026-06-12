@@ -3,6 +3,7 @@ module;
 #include <cmath>
 #include <concepts>
 #include <cstddef>
+#include <cassert>
 #include <limits>
 #include <optional>
 #include <type_traits>
@@ -512,6 +513,8 @@ export namespace kairo::foundation::geometry
         T epsilon =
             std::numeric_limits<T>::epsilon() * T(100)) noexcept
     {
+        assert(box.IsValid());
+
         const Vector3<T> localOrigin =
             box.WorldToLocalPoint(ray.Origin);
 
@@ -1041,17 +1044,22 @@ export namespace kairo::foundation::geometry
 
             if (discriminant >= T(0))
             {
-                const T t =
-                    (-b - std::sqrt(discriminant)) /
-                    a;
+                const T sqrtDiscriminant =
+                    std::sqrt(discriminant);
 
-                const T y =
-                    md + t * nd;
-
-                if (t >= T(0) &&
-                    y >= T(0) &&
-                    y <= dd)
+                auto considerBodyRoot =
+                    [&](const T t) noexcept
                 {
+                    const T y =
+                        md + t * nd;
+
+                    if (t < T(0) ||
+                        y < T(0) ||
+                        y > dd)
+                    {
+                        return;
+                    }
+
                     const Vector3<T> point =
                         ray.GetPoint(t);
 
@@ -1073,7 +1081,15 @@ export namespace kairo::foundation::geometry
                     {
                         bestHit = bodyHit;
                     }
-                }
+                };
+
+                considerBodyRoot(
+                    (-b - sqrtDiscriminant) /
+                    a);
+
+                considerBodyRoot(
+                    (-b + sqrtDiscriminant) /
+                    a);
             }
         }
 
