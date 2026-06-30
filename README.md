@@ -116,6 +116,20 @@ Generic overloads that already belong to primitive modules are not redeclared in
 the aggregate query modules. This keeps C++ module ownership unambiguous while
 still exposing readable named helpers for shared query code.
 
+### Spatial Layer Integration
+
+`KairoSpatial` is the downstream acceleration/query layer for this geometry
+package. It reuses `AABBf`, `Rayf`, `Sphere`, and `Frustumf` directly rather
+than duplicating primitive math. That keeps CPU ray tracing, physics
+broadphase, renderer culling, editor picking, and AI/navigation queries on the
+same geometry conventions:
+
+- AABBs use the `Min <= Max` validity contract documented here.
+- Rays use `P(t) = Origin + Direction * t` with `t >= 0`.
+- Frustum plane normals point inward for culling.
+- Spatial traversal remains generic over primitive IDs; triangle or mesh tests
+  stay in the caller.
+
 ## Build
 
 `KairoGeometry` is a C++23 module library. It depends on `KairoMath` but does
