@@ -132,11 +132,12 @@ same geometry conventions:
 
 ## Build
 
-`KairoGeometry` is a C++23 module library. It depends on `KairoMath` but does
-not vendor or copy any KairoMath source into this repository.
+`KairoGeometry` is a C++23 module library. It depends on `KairoMath` and should
+prefer the live adjacent `Foundation/KairoMath` checkout during Kairo workspace
+development so Geometry, Spatial, and RayTracer all see the same math APIs.
 
-Clone with submodules when you want the repo to bring its pinned `KairoMath`
-dependency with it:
+Clone with submodules only when you want the repo to bring a pinned fallback
+`KairoMath` dependency with it for standalone builds:
 
 ```sh
 git clone --recursive https://github.com/swayam8624/KairoGeometry.git
@@ -152,8 +153,9 @@ Dependency resolution order:
 
 1. `-DKAIRO_MATH_SOURCE_DIR=/path/to/KairoMath` when you want to point at an
    explicit local checkout.
-2. `external/KairoMath` when the repository is cloned recursively.
-3. `../KairoMath` when developing inside the `Kairo/Foundation` workspace.
+2. `../KairoMath` when developing inside the `Kairo/Foundation` workspace.
+3. `external/KairoMath` when the repository is cloned recursively as a
+   standalone checkout.
 4. `https://github.com/swayam8624/KairoMath.git` through CMake `FetchContent`
    when no local checkout is available.
 
