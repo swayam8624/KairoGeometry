@@ -10,7 +10,7 @@ option(KAIRO_GEOMETRY_BUILD_VISUALIZER "Build the standalone KairoGeometry visua
 
 # Standalone consumers fetch the same KairoMath revision validated by the
 # umbrella. Local source directories remain the preferred development path.
-set(KAIRO_GEOMETRY_MATH_REVISION 6f4a632d35b48a73f3724d58342bae0d2d2afcf9)
+set(KAIRO_GEOMETRY_MATH_REVISION d77c98d7401f63b697c1486ebf59a1fae74c6490)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
