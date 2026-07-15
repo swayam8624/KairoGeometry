@@ -5,9 +5,12 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(KAIRO_GEOMETRY_BUILD_TESTS "Build KairoGeometry unit and smoke tests" ${PROJECT_IS_TOP_LEVEL})
+option(KAIRO_GEOMETRY_BUILD_VISUALIZER "Build the standalone KairoGeometry visualizer" ${PROJECT_IS_TOP_LEVEL})
+
 # Standalone consumers fetch the same KairoMath revision validated by the
 # umbrella. Local source directories remain the preferred development path.
-set(KAIRO_GEOMETRY_MATH_REVISION ea0ac4845b91316bb85dd03932b2bc5494f6525f)
+set(KAIRO_GEOMETRY_MATH_REVISION 6f4a632d35b48a73f3724d58342bae0d2d2afcf9)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
@@ -65,15 +68,19 @@ target_sources(KairoGeometry
 
 target_link_libraries(KairoGeometry PUBLIC KairoMath)
 
-add_executable(KairoGeometrySmoke tests/smoke.cpp)
-target_link_libraries(KairoGeometrySmoke PRIVATE KairoGeometry)
+if(KAIRO_GEOMETRY_BUILD_TESTS)
+    add_executable(KairoGeometrySmoke tests/smoke.cpp)
+    target_link_libraries(KairoGeometrySmoke PRIVATE KairoGeometry)
 
-add_executable(KairoGeometryTests tests/GeometryTests.cpp)
-target_link_libraries(KairoGeometryTests PRIVATE KairoGeometry)
+    add_executable(KairoGeometryTests tests/GeometryTests.cpp)
+    target_link_libraries(KairoGeometryTests PRIVATE KairoGeometry)
 
-add_executable(KairoGeometryVisual visual/VisualTests.cpp)
-target_link_libraries(KairoGeometryVisual PRIVATE KairoGeometry)
+    enable_testing()
+    add_test(NAME KairoGeometrySmoke COMMAND KairoGeometrySmoke)
+    add_test(NAME KairoGeometryTests COMMAND KairoGeometryTests)
+endif()
 
-enable_testing()
-add_test(NAME KairoGeometrySmoke COMMAND KairoGeometrySmoke)
-add_test(NAME KairoGeometryTests COMMAND KairoGeometryTests)
+if(KAIRO_GEOMETRY_BUILD_VISUALIZER)
+    add_executable(KairoGeometryVisual visual/VisualTests.cpp)
+    target_link_libraries(KairoGeometryVisual PRIVATE KairoGeometry)
+endif()

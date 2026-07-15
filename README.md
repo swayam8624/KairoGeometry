@@ -172,6 +172,10 @@ cmake --build Foundation/KairoGeometry/cmake-build-geometry-llvm
 ./Foundation/KairoGeometry/cmake-build-geometry-llvm/KairoGeometrySmoke
 ```
 
+`KAIRO_GEOMETRY_BUILD_TESTS` and `KAIRO_GEOMETRY_BUILD_VISUALIZER` default to
+`ON` for this standalone project. Parent superbuilds can independently retain
+the tests while excluding the developer-only visualizer from runtime builds.
+
 The `cmake-build-*` folders are generated build artifacts. They can contain
 compiled `KairoMath` objects because CMake builds dependencies under the active
 build directory; those files are ignored and should not be committed.
