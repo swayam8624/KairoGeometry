@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Standalone consumers fetch the same KairoMath revision validated by the
+# umbrella. Local source directories remain the preferred development path.
+set(KAIRO_GEOMETRY_MATH_REVISION 24ed9ec2bacf508228bc7264fdbad109b65cf63b)
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
 elseif(MSVC)
@@ -24,17 +28,13 @@ if(NOT TARGET KairoMath)
             "${CMAKE_CURRENT_SOURCE_DIR}/../KairoMath"
             "${CMAKE_CURRENT_BINARY_DIR}/_deps/KairoMath"
         )
-    elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/KairoMath/CMakeLists.txt")
-        add_subdirectory(
-            "${CMAKE_CURRENT_SOURCE_DIR}/external/KairoMath"
-            "${CMAKE_CURRENT_BINARY_DIR}/_deps/KairoMath"
-        )
     else()
         include(FetchContent)
         FetchContent_Declare(
             KairoMath
             GIT_REPOSITORY https://github.com/swayam8624/KairoMath.git
-            GIT_TAG master
+            GIT_TAG ${KAIRO_GEOMETRY_MATH_REVISION}
+            GIT_SHALLOW TRUE
         )
         FetchContent_MakeAvailable(KairoMath)
     endif()
