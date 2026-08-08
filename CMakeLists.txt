@@ -10,7 +10,7 @@ option(KAIRO_GEOMETRY_BUILD_VISUALIZER "Build the standalone KairoGeometry visua
 
 # Standalone consumers fetch the same KairoMath revision validated by the
 # umbrella. Local source directories remain the preferred development path.
-set(KAIRO_GEOMETRY_MATH_REVISION d77c98d7401f63b697c1486ebf59a1fae74c6490)
+set(KAIRO_GEOMETRY_MATH_REVISION e12778734a8e8ffe060255a9c03683ad6c4b1a92)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
@@ -37,7 +37,6 @@ if(NOT TARGET KairoMath)
             KairoMath
             GIT_REPOSITORY https://github.com/swayam8624/KairoMath.git
             GIT_TAG ${KAIRO_GEOMETRY_MATH_REVISION}
-            GIT_SHALLOW TRUE
         )
         FetchContent_MakeAvailable(KairoMath)
     endif()
