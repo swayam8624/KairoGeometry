@@ -74,9 +74,13 @@ if(KAIRO_GEOMETRY_BUILD_TESTS)
     add_executable(KairoGeometryTests tests/GeometryTests.cpp)
     target_link_libraries(KairoGeometryTests PRIVATE KairoGeometry)
 
+    add_executable(KairoGeometryCertification tests/CertificationTests.cpp)
+    target_link_libraries(KairoGeometryCertification PRIVATE KairoGeometry)
+
     enable_testing()
     add_test(NAME KairoGeometrySmoke COMMAND KairoGeometrySmoke)
     add_test(NAME KairoGeometryTests COMMAND KairoGeometryTests)
+    add_test(NAME KairoGeometryCertification COMMAND KairoGeometryCertification)
 endif()
 
 if(KAIRO_GEOMETRY_BUILD_VISUALIZER)
