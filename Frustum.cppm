@@ -375,7 +375,7 @@ export namespace kairo::foundation::geometry
         std::array<Vector3<T>, 8> Corners() const noexcept
         {
             std::array<Vector3<T>, 8> corners {};
-            const bool valid =
+            [[maybe_unused]] const bool valid =
                 GetCorners(corners);
 
             assert(valid);
