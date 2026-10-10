@@ -1,0 +1,77 @@
+name: KairoGeometry CI
+
+on:
+  push:
+    branches: [main, master, 'fix/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: linux-clang, os: ubuntu-24.04 }
+          - { platform: macos-llvm, os: macos-15 }
+          - { platform: windows-msvc, os: windows-2022 }
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Activate MSVC
+        if: matrix.platform == 'windows-msvc'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Linux build tools
+        if: matrix.platform == 'linux-clang'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang ninja-build cmake
+          echo "CC=$(command -v clang)" >> "$GITHUB_ENV"
+          echo "CXX=$(command -v clang++)" >> "$GITHUB_ENV"
+
+      - name: Install macOS LLVM and CMake
+        if: matrix.platform == 'macos-llvm'
+        shell: bash
+        run: |
+          brew install cmake ninja llvm
+          echo "CC=$(brew --prefix llvm)/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=$(brew --prefix llvm)/bin/clang++" >> "$GITHUB_ENV"
+
+      - name: Configure standalone module and tests
+        shell: bash
+        run: |
+          cmake -S . -B build/ci -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DKAIRO_GEOMETRY_BUILD_TESTS=ON -DKAIRO_GEOMETRY_BUILD_VISUALIZER=OFF
+
+      - name: Build production module and regression tests
+        shell: bash
+        run: cmake --build build/ci --parallel 2
+
+      - name: Run registered tests
+        shell: bash
+        run: ctest --test-dir build/ci --output-on-failure --no-tests=error
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: KairoGeometry-${{ matrix.platform }}-diagnostics
+          path: |
+            build/ci/Testing/Temporary/LastTest.log
+            build/ci/CMakeFiles/CMakeConfigureLog.yaml
+          if-no-files-found: ignore
+          retention-days: 7
