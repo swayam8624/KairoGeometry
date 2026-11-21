@@ -1,3 +1,7 @@
+// TEACHING MODULE: Six clipping planes with inward normals represent the camera's visible
+// half-spaces. Extraction from view-projection requires matching KairoMath's
+// column-vector and clip-depth conventions. Bounding sphere/AABB/OBB tests
+// are conservative visibility queries for Renderer/scene culling, not rasterization.
 module;
 
 #include <array>
