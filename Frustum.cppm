@@ -1,3 +1,9 @@
+// TEACHING MAP — Frustum.cppm
+// Camera clipping planes and culling queries based on Matrix/Plane conventions. Renderer and
+// Spatial use it to reject invisible objects; wrong projection Z range yields incorrect
+// culling.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 module;
 
 #include <array>
