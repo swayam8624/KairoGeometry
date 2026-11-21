@@ -171,6 +171,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `SignedDistanceToPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: SignedDistanceToPoint( Evaluate dot(N,p)+d. A nonunit N scales the value, so call normalization before treating it as meters.
         constexpr T SignedDistanceToPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -201,6 +202,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ProjectPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ProjectPoint( Subtract signed distance along unit normal to obtain the nearest point on the infinite plane.
         constexpr Vector3<T> ProjectPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -241,6 +243,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ReflectVector` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ReflectVector( Mirror a direction about the plane normal; reflection keeps tangential component while reversing normal component.
         constexpr Vector3<T> ReflectVector(
             const Vector3<T>& vector) const noexcept
         {
