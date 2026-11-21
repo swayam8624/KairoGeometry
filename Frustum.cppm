@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Camera view-frustum planes used for visibility tests and spatial culling. Rendering/camera consumers
+// must agree on handedness, clip-space and near/far conventions.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <array>
