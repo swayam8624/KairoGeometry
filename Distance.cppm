@@ -1,3 +1,7 @@
+// TEACHING MODULE: Distance functions build on closest-point projections: squared distances
+// avoid a square root for comparisons, while signed distances retain inside/
+// outside meaning only for shapes with defined interiors. A negative signed
+// sphere/capsule distance means penetration; surface distances can clamp to zero.
 module;
 
 #include <cmath>
