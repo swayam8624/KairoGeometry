@@ -140,6 +140,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `DistanceSquaredToTriangle` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: DistanceSquaredToTriangle — Compute the closest triangle witness first; squared distance stays nonnegative and useful for broad queries.
     T DistanceSquaredToTriangle(
         const Vector3<T>& point,
         const Triangle<T>& triangle) noexcept
@@ -471,6 +472,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `SignedDistanceBetweenSpheres` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: SignedDistanceBetweenSpheres — Center separation minus the two radii: negative overlap, zero contact, positive surface separation.
     T SignedDistanceBetweenSpheres(
         const Sphere<T>& lhs,
         const Sphere<T>& rhs) noexcept
@@ -593,6 +595,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `DistanceSquaredBetweenSegments` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: DistanceSquaredBetweenSegments — Use segment-segment closest-point solution and return squared witness separation, avoiding sqrt.
     T DistanceSquaredBetweenSegments(
         const Segment<T>& lhs,
         const Segment<T>& rhs) noexcept
