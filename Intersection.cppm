@@ -120,6 +120,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `RaySphere` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: RaySphere — Solve the quadratic |O+tD-C|^2=r^2 and choose the earliest nonnegative t; return optional hit on success.
     std::optional<RayHit<T>> RaySphere(
         const Ray<T>& ray,
         const Sphere<T>& sphere,
@@ -215,6 +216,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `RayTriangle` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: RayTriangle — Use determinant and barycentric coordinates (Möller–Trumbore style) to reject parallel rays/outside triangles.
     std::optional<RayHit<T>> RayTriangle(
         const Ray<T>& ray,
         const Triangle<T>& triangle,
@@ -318,6 +320,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `RayAABB` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: RayAABB — Intersect three parameter slabs, carrying shared t interval; near-parallel axes require containment checks.
     std::optional<RayHit<T>> RayAABB(
         const Ray<T>& ray,
         const AABB<T>& box,
@@ -954,6 +957,7 @@ export namespace kairo::foundation::geometry
 
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: RayCapsule — Intersect the swept sphere around a segment, including end caps and degeneracies.
     std::optional<RayHit<T>> RayCapsule(
         const Ray<T>& ray,
         const Capsule<T>& capsule,
@@ -1618,6 +1622,7 @@ export namespace kairo::foundation::geometry
 
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: TriangleAABB — Use triangle-versus-axis-aligned box separation axes; an AABB bounding-box overlap is insufficient.
     constexpr bool TriangleAABB(
         const Triangle<T>& triangle,
         const AABB<T>& box,
@@ -1734,6 +1739,7 @@ export namespace kairo::foundation::geometry
 
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: TriangleTriangle — Check overlapping triangles under coplanar and noncoplanar cases, not just their axis-aligned bounds.
     bool TriangleTriangle(
         const Triangle<T>& lhs,
         const Triangle<T>& rhs,
@@ -1838,6 +1844,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `OBBOBB` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: OBBOBB — Use the separating axis theorem over box axes and cross axes, with epsilon for nearly parallel bases.
     bool OBBOBB(
         const OBB<T>& lhs,
         const OBB<T>& rhs,
