@@ -328,6 +328,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `WorldToLocalPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: WorldToLocalPoint — Project point-center onto the box's three orthonormal axes before clamping to half-extents.
         constexpr Vector3<T> WorldToLocalPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -346,6 +347,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `LocalToWorldPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: LocalToWorldPoint — Reconstruct world position as center plus local coordinate along each oriented axis.
         constexpr Vector3<T> LocalToWorldPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -439,6 +441,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ContainsPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ContainsPoint — Convert to local box frame and compare absolute coordinates with half-extents.
         constexpr bool ContainsPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -482,6 +485,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ToAABB` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ToAABB — Return enclosing axis-aligned bounds of all oriented corners for use by spatial acceleration structures.
         AABB<T> ToAABB() const noexcept
         {
             AABB<T> result =
@@ -583,6 +587,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `HasOrthogonalAxes` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: HasOrthogonalAxes — Check basis axes are nearly mutually perpendicular; invalid basis breaks closest-point and SAT formulas.
         bool HasOrthogonalAxes(
             T epsilon =
                 std::numeric_limits<T>::epsilon()
