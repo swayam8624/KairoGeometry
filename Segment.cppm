@@ -1,3 +1,7 @@
+// TEACHING MODULE: Finite segment between Start and End; normalized parameter t in [0,1]
+// differs from physical length along the segment. Closest-points queries must
+// handle degenerate segments and clamp parameters. Capsules use a segment as
+// their center axis; PhysicsEngine consumes these for distance/contact tests.
 module;
 
 #include <cassert>
