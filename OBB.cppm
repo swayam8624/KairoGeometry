@@ -1,3 +1,7 @@
+// TEACHING MODULE: Oriented bounding box represents a center, orthonormal axes and half-extents.
+// Converting points to its local frame makes closest-point/distance calculations
+// resemble AABB calculations. SAT overlap needs all relevant separating axes;
+// KairoPhysicsEngine uses OBB intersections after broadphase candidate discovery.
 module;
 
 #include <array>
