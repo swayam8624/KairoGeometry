@@ -1,3 +1,7 @@
+// TEACHING MODULE: Axis-aligned bounding box stores componentwise Min/Max and is fast to
+// intersect. An empty sentinel is distinct from a point box. A rotated AABB
+// becomes an AABB enclosing the transformed corners, not a true OBB. KairoSpatial
+// dynamic trees use AABBs for broadphase pruning; exact contacts occur later.
 module;
 
 #include <algorithm>
