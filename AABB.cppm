@@ -301,6 +301,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ContainsPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ContainsPoint — Compare point with each Min/Max component; an AABB is a closed axis-aligned volume, unlike an OBB.
         constexpr bool ContainsPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -418,6 +419,7 @@ export namespace kairo::foundation::geometry
         /// Input: function parameters as declared by `ExpandToInclude`.
         /// Output: none; mutates this geometry value in place.
         /// Task: update the value while preserving documented geometry invariants.
+        /// TEACHING API: ExpandToInclude — Extend componentwise Min/Max to contain additional point or box, retaining axis alignment.
         constexpr void ExpandToInclude(
             const Vector3<T>& point) noexcept
         {
@@ -631,6 +633,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `Intersects` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: Intersects — AABB-AABB overlap compares independent x/y/z intervals; broadphase uses it to find candidates, not contact manifolds.
     constexpr bool Intersects(
         const AABB<T>& lhs,
         const AABB<T>& rhs) noexcept
@@ -649,6 +652,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `Intersection` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: Intersection — Compute overlap box via componentwise max(Min) and min(Max); return empty for separating volumes.
     constexpr AABB<T> Intersection(
         const AABB<T>& lhs,
         const AABB<T>& rhs) noexcept
@@ -744,6 +748,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `TransformAABB` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: TransformAABB — Enclose transformed box corners in a new axis-aligned bound; the result is conservative and not an oriented box.
     AABB<T> TransformAABB(
         const AABB<T>& box,
         const Matrix4<T>& matrix) noexcept
