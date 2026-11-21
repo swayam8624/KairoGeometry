@@ -1,3 +1,8 @@
+// TEACHING FILE: Custom deterministic unit harness (not Catch2): Require increments gChecks,
+// failed assertions increment gFailures, RunSuite measures each suite. These checks
+// exercise contract examples and numerical tolerances; running on a host is
+// required before claiming a pass. Study tests alongside source predicates.
+
 #include <cmath>
 #include <chrono>
 #include <cstdlib>
