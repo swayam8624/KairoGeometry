@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Capsule representation combines a segment axis with radius; closest-point/intersection routines use
+// it for rounded colliders. KairoPhysicsEngine contact logic consumes the resulting shape semantics.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <cassert>
