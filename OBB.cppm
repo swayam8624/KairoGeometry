@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Oriented bounds representation with local axes/half-extents. Exact intersection routines account for
+// orientation even when spatial broadphase uses a looser AABB.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <array>
