@@ -1,3 +1,9 @@
+// TEACHING MAP — tests/CertificationTests.cpp
+// Geometric invariant certification tests for degeneracy, finite values, intersections and
+// coordinate conventions. Always compare against independent analytic geometry or
+// brute-force oracle.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
