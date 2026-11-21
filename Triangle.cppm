@@ -1,3 +1,7 @@
+// TEACHING MODULE: Oriented triangle with winding A->B->C and normal from cross(B-A,C-A).
+// Barycentric coordinates, projected closest points and face tests need
+// degenerate-triangle handling. Ray tracing, mesh import and physics
+// narrowphase use these primitives but own their traversal/contacts.
 module;
 
 #include <cassert>
