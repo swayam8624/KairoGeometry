@@ -1,3 +1,7 @@
+// TEACHING MODULE: Sphere is center plus nonnegative radius. Surface distance differs from
+// center distance: signed distance = |p-c|-r and overlap comparisons must
+// include both radii. Rigid-body mass helpers use volume and a solid-sphere
+// inertia model, while PhysicsEngine owns dynamic collision state.
 module;
 
 #include <cassert>
