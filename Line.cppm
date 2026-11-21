@@ -1,3 +1,7 @@
+// TEACHING MODULE: Infinite parametric line P(t)=P0+t*D, unlike Ray (t>=0) and Segment
+// (t in [0,1]). Nonunit direction changes t units; projection and closest
+// point formulas divide by D dot D where necessary. Physics/debug tools
+// consume these helpers independently of a simulation world.
 module;
 
 #include <cassert>
