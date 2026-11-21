@@ -92,6 +92,7 @@ export namespace kairo::foundation::geometry
         /// Output: the computed value described by the function name and return type.
         /// Task: provide the `FromViewProjection` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
         [[nodiscard]]
+        /// TEACHING API: FromViewProjection — Extract inward clipping planes from the combined view-projection matrix, respecting KairoMath clip depth conventions.
         static Frustum FromViewProjection(
             const Matrix4<T>& viewProjection) noexcept
         {
@@ -230,6 +231,7 @@ export namespace kairo::foundation::geometry
         /// Output: true if sphere is at least partially inside the frustum.
         /// Task: conservative sphere/frustum culling.
         [[nodiscard]]
+        /// TEACHING API: IntersectsSphere — Reject when any inward plane excludes sphere by more than its radius; survivors remain potential visible objects.
         constexpr bool IntersectsSphere(
             const Sphere<T>& sphere) const noexcept
         {
@@ -248,6 +250,7 @@ export namespace kairo::foundation::geometry
         /// Output: true if the box is at least partially inside the frustum.
         /// Task: fast broad-phase camera culling using positive vertex tests.
         [[nodiscard]]
+        /// TEACHING API: IntersectsAABB — Test plane positive/negative support point rather than individually projecting every box corner.
         constexpr bool IntersectsAABB(
             const AABB<T>& box) const noexcept
         {
@@ -313,6 +316,7 @@ export namespace kairo::foundation::geometry
         /// Task: reconstruct corner points for debug drawing and editor tools.
         /// Returns false if any three-plane intersection is degenerate.
         [[nodiscard]]
+        /// TEACHING API: GetCorners — Intersect triples of clipping planes to recover frustum corners, returning failure for degenerate configurations.
         bool GetCorners(
             std::array<Vector3<T>, 8>& corners,
             T epsilon =
