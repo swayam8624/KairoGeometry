@@ -1,3 +1,8 @@
+// TEACHING FILE: Deterministic educational visualization generator. Canvas builds SVG
+// diagrams from KairoMath/Geometry values, so the images explain vector and
+// collision geometry but do not prove native engine rendering correctness.
+// Read its drawn shapes beside the matching numeric tests.
+
 #include <array>
 #include <cmath>
 #include <filesystem>
