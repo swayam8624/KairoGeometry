@@ -1,3 +1,8 @@
+// TEACHING MAP — tests/GeometryTests.cpp
+// Checks primitive relations, distances and intersections across representative plus edge
+// cases; other Kairo modules depend on these foundational contracts.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 #include <cmath>
 #include <chrono>
 #include <cstdlib>
