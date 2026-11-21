@@ -157,7 +157,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `UnnormalizedNormal` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
-        /// TEACHING API: Normal( Normalize cross(B-A,C-A), so vertex winding fixes the normal orientation and back-face behavior.
+        /// TEACHING API: UnnormalizedNormal( Compute cross(B-A,C-A) with magnitude twice triangle area; winding sets orientation.
         constexpr Vector3<T> UnnormalizedNormal() const noexcept
         {
             return Cross(
@@ -169,6 +169,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `Normal` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: Normal( Divide the cross-product normal by its length when nondegenerate; degenerate faces need a safe fallback.
         Vector3<T> Normal() const noexcept
         {
             return SafeNormalize(
