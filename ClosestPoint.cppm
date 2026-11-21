@@ -111,6 +111,7 @@ export namespace kairo::foundation::geometry
     /// naming scheme used by the aggregate geometry query module.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: ClosestPointOnCapsule — Find closest point on capsule axis then offset toward the query by capsule radius.
     Vector3<T> ClosestPointOnCapsule(
         const Capsule<T>& capsule,
         const Vector3<T>& point) noexcept
@@ -128,6 +129,7 @@ export namespace kairo::foundation::geometry
     /// the box's internal world/local conversion details.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: ClosestPointOnOBB — Transform query into OBB local coordinates, clamp to a local AABB, then transform back.
     constexpr Vector3<T> ClosestPointOnOBB(
         const OBB<T>& box,
         const Vector3<T>& point) noexcept
@@ -221,6 +223,7 @@ export namespace kairo::foundation::geometry
     /// so degenerate and edge-region cases are handled explicitly.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: ClosestPointOnTriangle — Partition space into triangle vertex, edge and face Voronoi regions; find the correct closest geometric witness.
     Vector3<T> ClosestPointOnTriangle(
         const Triangle<T>& triangle,
         const Vector3<T>& point) noexcept
