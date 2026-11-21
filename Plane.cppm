@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Oriented plane equation and normal representation. Intersection uses signed-distance/denominator
+// tests for line and ray queries; ensure normals and distance sign conventions match consumers.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <cassert>
