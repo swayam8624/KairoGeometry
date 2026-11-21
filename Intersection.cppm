@@ -1,3 +1,4 @@
+// TEACHING MAP: Geometric intersection predicates are consumed by KairoSpatial traversal, PhysicsEngine narrowphase and RayTracer hit tests. Geometry owns exact primitive math; acceleration structures only narrow candidate sets.
 module;
 
 #include <cmath>
