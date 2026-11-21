@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Spherical shape parameters used by closest-point, overlap and ray-intersection queries. KairoSpatial
+// can index its AABB while exact geometric queries use its center/radius.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <cassert>
