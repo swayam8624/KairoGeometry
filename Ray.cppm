@@ -1,3 +1,7 @@
+// TEACHING MODULE: Half-infinite parametric ray P(t)=O+t*D with t>=0. Distance helpers
+// require a normalized direction for t to equal distance. Ray tracing consumes
+// this value type; KairoSpatial uses rays to prune BVH/AABB candidates, while
+// Intersection owns exact ray-primitive hit predicates.
 module;
 
 #include <cassert>
