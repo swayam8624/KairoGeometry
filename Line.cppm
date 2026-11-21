@@ -1,3 +1,9 @@
+// TEACHING NOTE:
+// Infinite line representation for geometry operations. Compare Ray (half-line) and Segment (bounded
+// interval) before selecting a geometric query; Distance/ClosestPoint rely on the correct parameter
+// domain.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <cassert>
