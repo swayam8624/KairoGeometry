@@ -1,3 +1,8 @@
+// TEACHING FILE: Property-style numeric certification uses a fixed linear-congruential RNG
+// seed and 25,000 generated cases; it tests sampled scale/shape relationships,
+// not all possible floating-point configurations. Reproducibility requires
+// preserving the seed, compiler behavior and tolerance policy.
+
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
