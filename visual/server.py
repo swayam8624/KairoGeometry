@@ -1,3 +1,7 @@
+# TEACHING FILE: Minimal Python static-file server for generated Geometry SVG/HTML output.
+# It uses the stdlib http.server/socketserver APIs and a configurable port;
+# it does not compile C++ or validate geometry. Use local access for study.
+
 import http.server
 import os
 import socketserver
