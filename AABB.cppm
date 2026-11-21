@@ -1,3 +1,8 @@
+// TEACHING MAP — AABB.cppm
+// Axis-aligned bounds with overlap and extent operations used by BVH/Spatial broadphase and
+// PhysicsWorld candidates. An AABB overlap is only a possible collision.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <algorithm>

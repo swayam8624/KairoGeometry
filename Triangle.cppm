@@ -1,3 +1,8 @@
+// TEACHING MAP — Triangle.cppm
+// Triangle positions/edges/barycentric geometry for mesh intersections and ray tracing.
+// Degenerate triangles and winding conventions are important for normals and hit tests.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>

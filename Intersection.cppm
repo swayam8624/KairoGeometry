@@ -1,3 +1,9 @@
+// TEACHING MAP — Intersection.cppm
+// Exact primitive intersection tests, ray hits and overlap classification. Renderer picking,
+// BVH traversal and narrowphase use the results; floating-point epsilon and shape degeneracy
+// must be handled explicitly.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 module;
 
 #include <cmath>

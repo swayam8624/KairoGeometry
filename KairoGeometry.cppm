@@ -1,3 +1,8 @@
+// TEACHING MAP — KairoGeometry.cppm
+// Public C++23 geometry umbrella. Re-exports primitive, intersection, distance and frustum
+// contracts; KairoSpatial, PhysicsEngine, Renderer and RayTracer import these types.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 export module Kairo.Foundation.Geometry;
 
 export import Kairo.Foundation.Geometry.Ray;

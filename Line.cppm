@@ -1,3 +1,8 @@
+// TEACHING MAP — Line.cppm
+// Infinite geometric line representation and operations. Intersection code should not
+// silently treat it as a finite segment or viewing ray.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>

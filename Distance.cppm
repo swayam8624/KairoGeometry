@@ -1,3 +1,9 @@
+// TEACHING MAP — Distance.cppm
+// Euclidean/signed distance routines built on primitive geometry and closest points.
+// PhysicsEngine/contact tests and Spatial queries use these values; squared distance and
+// actual distance have different units.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 module;
 
 #include <cmath>

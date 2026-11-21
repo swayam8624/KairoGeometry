@@ -1,3 +1,8 @@
+// TEACHING MAP — Segment.cppm
+// Finite line segment operations, distinct from an infinite line or half-infinite ray.
+// ClosestPoint/Distance and intersection routines must respect segment endpoints.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>

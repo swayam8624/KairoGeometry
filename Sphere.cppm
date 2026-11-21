@@ -1,3 +1,8 @@
+// TEACHING MAP — Sphere.cppm
+// Sphere shape and geometric queries used by ray tracing, physics collision and bounds
+// calculations. Handle zero radius and contact normal degeneracies.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>
