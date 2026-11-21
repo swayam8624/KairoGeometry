@@ -1,3 +1,6 @@
+// TEACHING MODULE: Umbrella C++23 module that reexports primitive, closest-point, distance
+// and intersection interfaces. Narrow imports reduce compile coupling;
+// there is no hidden geometry implementation in this file.
 export module Kairo.Foundation.Geometry;
 
 export import Kairo.Foundation.Geometry.Ray;
