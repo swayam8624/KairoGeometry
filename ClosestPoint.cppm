@@ -1,3 +1,9 @@
+// TEACHING MAP — ClosestPoint.cppm
+// Closest-point projections between geometric primitives, consumed by Distance and
+// narrowphase collision helpers. Domain restrictions (ray/segment endpoints) and zero-length
+// cases determine the answer.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 module;
 
 #include <cmath>
