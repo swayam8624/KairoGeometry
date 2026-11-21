@@ -167,6 +167,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ContainsPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ContainsPoint( Compare squared center distance with squared radius when testing interior points, avoiding sqrt.
         constexpr bool ContainsPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -265,6 +266,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `SignedDistanceToPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: SignedDistanceToPoint( Distance from the sphere surface is length(point-center)-radius: negative is interior.
         constexpr T SignedDistanceToPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -296,6 +298,7 @@ export namespace kairo::foundation::geometry
         /// Output: none; mutates the object or output parameters described by the function.
         /// Task: provide the `ExpandToInclude` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
+        /// TEACHING API: ExpandToInclude( Grow sphere to include another point, modifying center/radius while preserving containment.
         void ExpandToInclude(
             const Vector3<T>& point) noexcept
         {
