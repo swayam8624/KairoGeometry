@@ -1,3 +1,7 @@
+// TEACHING MODULE: Capsule is the swept volume of a sphere along a finite segment.
+// Degenerate axis behaves like a sphere; radius zero reduces to a segment.
+// Geometry provides distance/closest-point predicates, while PhysicsMath
+// derives an approximate Y-aligned capsule inertia and PhysicsEngine solves contacts.
 module;
 
 #include <cassert>
