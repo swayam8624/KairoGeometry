@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Triangle positions and barycentric geometry underpin ray casting, closest-point and mesh-facing
+// queries. Degeneracy and winding/orientation matter to normal and hit reporting.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <cassert>
