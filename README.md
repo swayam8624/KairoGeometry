@@ -179,3 +179,12 @@ the tests while excluding the developer-only visualizer from runtime builds.
 The `cmake-build-*` folders are generated build artifacts. They can contain
 compiled `KairoMath` objects because CMake builds dependencies under the active
 build directory; those files are ignored and should not be committed.
+
+
+## Source learning pathway
+
+Follow [the linked reading order](docs/SOURCE_READING_ORDER.md) to study the public interfaces, implementations, tests and cross-repository dependencies in a deliberate sequence. It explains what each subsystem owns, where its outputs go, and which behaviors require verification. Distinguish C++23 module interfaces, actual backend implementations and planned APIs.
+
+## Open-source learning and extension
+
+Original project code is available to learn from, modify and develop further under the applicable [LICENSE](LICENSE). Keep copyright/license notices when redistributing substantial portions. Dependencies, code adapted from other sources, media, datasets, models and other third-party materials remain subject to their original licenses. Consult [STATUS.md](STATUS.md) for evidence limitations rather than treating documentation or an unverified completion target as a guarantee of functionality.
