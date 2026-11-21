@@ -1,3 +1,8 @@
+# TEACHING BUILD: CMake assembles C++23 Geometry modules against KairoMath, preferring
+# explicit/sibling source before its pinned FetchContent fallback. Standalone
+# tests, smoke and visualizer targets are optional within a superbuild; CI
+# acceptance requires executing the selected tests on supported host compilers.
+
 cmake_minimum_required(VERSION 3.28)
 project(KairoGeometry LANGUAGES CXX)
 
