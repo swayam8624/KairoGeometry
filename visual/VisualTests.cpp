@@ -1,3 +1,8 @@
+// TEACHING MAP — visual/VisualTests.cpp
+// Renders illustrative primitive/intersection configurations for pedagogy. Compare observed
+// pictures to numerical assertions in GeometryTests and CertificationTests.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 #include <array>
 #include <cmath>
 #include <filesystem>
