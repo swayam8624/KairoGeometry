@@ -115,6 +115,7 @@ export namespace kairo::foundation::geometry
         /// Task: compute closest-line coordinate while safely handling a
         /// degenerate direction.
         [[nodiscard]]
+        /// TEACHING API: ClosestParameter( Use dot(point-P0,D)/dot(D,D), because line directions need not be normalized; t may be negative.
         T ClosestParameter(const Vector3<T>& point) const noexcept
         {
             const T lengthSquared =
@@ -142,6 +143,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `DistanceSquaredToPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: DistanceSquaredToPoint( Compute squared distance after closest-point projection; avoids a sqrt and supports exact-query pruning.
         T DistanceSquaredToPoint(const Vector3<T>& point) const noexcept
         {
             return kairo::foundation::math::DistanceSquared(
@@ -166,6 +168,7 @@ export namespace kairo::foundation::geometry
         /// Input: none.
         /// Output: none.
         /// Task: normalize direction, using +X as fallback for degenerate input.
+        /// TEACHING API: NormalizeDirection( Normalize the direction for interpretable distance parameters, while guarding degenerate line direction.
         void NormalizeDirection() noexcept
         {
             Direction =
