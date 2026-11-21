@@ -1,3 +1,8 @@
+// TEACHING MAP — Plane.cppm
+// Plane normal/offset equations consumed by Frustum, ray intersection and collision
+// geometry. Normals and signed-distance conventions must remain consistent.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>
