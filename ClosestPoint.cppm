@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Closest-point calculations support Distance, Intersection and physics geometry queries. Degenerate
+// segments/triangles and shape conventions must be checked at each call.
+// See docs/SOURCE_READING_ORDER.md for related modules and tests.
+
 module;
 
 #include <cmath>
