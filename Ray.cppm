@@ -1,3 +1,8 @@
+// TEACHING MAP — Ray.cppm
+// Ray origin/direction and ray queries. RayTracer traces these against shapes/BVH; Spatial
+// uses them for culling/picking. Ray intervals and normalized direction assumptions matter.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>
