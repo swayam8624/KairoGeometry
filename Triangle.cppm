@@ -157,6 +157,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `UnnormalizedNormal` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: Normal( Normalize cross(B-A,C-A), so vertex winding fixes the normal orientation and back-face behavior.
         constexpr Vector3<T> UnnormalizedNormal() const noexcept
         {
             return Cross(
@@ -240,6 +241,7 @@ export namespace kairo::foundation::geometry
         /// Output: the computed value described by the function name and return type.
         /// Task: provide the `Barycentric` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
         [[nodiscard]]
+        /// TEACHING API: Barycentric( Express point P as weights on A/B/C; weights sum to one and classify point-in-triangle under tolerance.
         Vector3<T> Barycentric(
             const Vector3<T>& point,
             T epsilon =
@@ -314,6 +316,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ContainsPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ContainsPoint( Use barycentric/plane tests to distinguish actual triangle footprint from its infinite supporting plane.
         bool ContainsPoint(
             const Vector3<T>& point,
             T epsilon =
