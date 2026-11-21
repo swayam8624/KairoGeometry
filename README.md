@@ -1,5 +1,7 @@
 # KairoGeometry
 
+> **Learn the implementation:** Follow the [linked source reading order](docs/SOURCE_READING_ORDER.md) to trace its types, APIs and downstream Kairo dependencies. Original project code and documentation are proposed under the [MIT License](LICENSE) for learning, reuse and further development. Third-party materials, if any, retain their own rights; review provenance before redistribution.
+
 `KairoGeometry` is the Foundation geometry layer built on top of
 `Kairo.Foundation.Math.Vector`.
 

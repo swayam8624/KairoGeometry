@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Ray definition for geometry queries; Intersection uses it with planes, spheres, triangles and
+// bounds, while KairoRayTracer uses ray conventions downstream.
+// See docs/SOURCE_READING_ORDER.md for related modules and tests.
+
 module;
 
 #include <cassert>

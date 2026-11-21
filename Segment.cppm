@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Finite two-endpoint segment. ClosestPoint, Distance, and Intersection use it where a bounded edge
+// matters; do not replace it with a Ray without changing parameter constraints.
+// See docs/SOURCE_READING_ORDER.md for related queries and consumers.
+
 module;
 
 #include <cassert>

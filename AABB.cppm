@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Axis-aligned bounding shape for spatial BVH and dynamic broadphase. KairoSpatial accelerates
+// candidate queries using these bounds; narrowphase determines actual contacts.
+// See docs/SOURCE_READING_ORDER.md for related modules and tests.
+
 module;
 
 #include <algorithm>

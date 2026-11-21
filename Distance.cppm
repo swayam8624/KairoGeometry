@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Distance operations complement ClosestPoint and Intersection; consumers use magnitude/sign semantics
+// to reason about proximity, not automatically contact response.
+// See docs/SOURCE_READING_ORDER.md for related modules and tests.
+
 module;
 
 #include <cmath>

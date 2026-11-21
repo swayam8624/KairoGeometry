@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Umbrella exports value-type shapes, distance and intersection APIs built on KairoMath.Vector; it
+// does not own a spatial tree, physics body or renderer.
+// See docs/SOURCE_READING_ORDER.md for related modules and tests.
+
 export module Kairo.Foundation.Geometry;
 
 export import Kairo.Foundation.Geometry.Ray;
