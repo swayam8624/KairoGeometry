@@ -236,6 +236,7 @@ export namespace kairo::foundation::geometry
         /// Output: clamped parameter in [0, 1].
         /// Task: compute nearest finite-segment parameter.
         [[nodiscard]]
+        /// TEACHING API: ClosestParameter( Project point onto Start->End, then clamp t to [0,1]. Zero-length segments need a fallback.
         T ClosestParameter(const Vector3<T>& point) const noexcept
         {
             return Clamp(
@@ -259,6 +260,7 @@ export namespace kairo::foundation::geometry
         /// Output: squared distance from point to finite segment.
         /// Task: avoid square roots for broad-phase and contact tests.
         [[nodiscard]]
+        /// TEACHING API: DistanceSquaredToPoint( Use the clamped closest point and squared norm, avoiding a square root until a physical distance is required.
         T DistanceSquaredToPoint(const Vector3<T>& point) const noexcept
         {
             return kairo::foundation::math::DistanceSquared(
@@ -396,6 +398,7 @@ export namespace kairo::foundation::geometry
     /// handled explicitly.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: ClosestPoints( Find nearest witnesses on two finite segments with both parameters clamped; used by capsule-capsule separation.
     SegmentClosestResult<T> ClosestPoints(
         const Segment<T>& lhs,
         const Segment<T>& rhs,
