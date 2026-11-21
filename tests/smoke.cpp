@@ -1,3 +1,7 @@
+// TEACHING FILE: Small direct module-integration executable: KAIRO_REQUIRE returns the
+// failing source line, so a zero exit indicates the listed predicates passed.
+// This is independent of the larger unit and randomized certification suites.
+
 import Kairo.Foundation.Geometry;
 import Kairo.Foundation.Math;
 
