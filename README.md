@@ -1,5 +1,7 @@
 # KairoGeometry
 
+**Learn the geometry:** [From coordinates to geometric queries](docs/GEOMETRY_WALKTHROUGH.md) · [Linked source-reading order](docs/SOURCE_READING_ORDER.md)
+
 `KairoGeometry` is the Foundation geometry layer built on top of
 `Kairo.Foundation.Math.Vector`.
 
