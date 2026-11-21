@@ -1,3 +1,8 @@
+// TEACHING MAP — tests/smoke.cpp
+// Exercises minimum build/public-module functions to detect import/runtime regressions. A
+// smoke test alone cannot certify every geometric predicate.
+// See READING_ORDER.md and KairoMath coordinate-convention documentation.
+
 import Kairo.Foundation.Geometry;
 import Kairo.Foundation.Math;
 
