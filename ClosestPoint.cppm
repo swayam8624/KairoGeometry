@@ -1,3 +1,7 @@
+// TEACHING MODULE: Shape-specific closest point queries reduce many collision/distance tests
+// to a single geometric witness. Ray clamps to t>=0; Segment clamps to [0,1];
+// Plane projects along normal. Degenerate triangles and zero-length axes need
+// guarded fallback. Higher-level physics code consumes returned points.
 module;
 
 #include <cmath>
