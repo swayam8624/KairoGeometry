@@ -147,6 +147,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `GetPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: GetPoint( Evaluate origin + direction*t. With a unit direction, t has distance units; otherwise it is only a parameter.
         constexpr Vector3<T> GetPoint(
             T distance) const noexcept
         {
@@ -235,6 +236,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `NormalizedRay` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: NormalizedRay( Create a ray with unit direction, preserving the geometric half-line while changing the meaning of t.
     Ray<T> NormalizedRay(
         const Ray<T>& ray) noexcept
     {
@@ -293,6 +295,7 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `ClosestParameter` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    /// TEACHING API: ClosestParameter( Project point-origin onto direction and clamp to >=0 so the result cannot lie behind the ray start.
     T ClosestParameter(
         const Ray<T>& ray,
         const Vector3<T>& point) noexcept
