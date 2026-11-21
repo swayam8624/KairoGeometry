@@ -1,3 +1,8 @@
+// TEACHING MAP — OBB.cppm
+// Oriented bounding boxes and basis axes used for rotated shape intersection and
+// narrowphase. Do not convert to AABB without acknowledging conservative false positives.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <array>
