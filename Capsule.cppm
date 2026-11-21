@@ -328,6 +328,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ClosestPointOnAxis` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ClosestPointOnAxis( Project onto Start->End and clamp to segment extent; the capsule surface is radius away from this axis witness.
         Vector3<T> ClosestPointOnAxis(
             const Vector3<T>& point) const noexcept
         {
@@ -378,6 +379,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `SignedDistanceToPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: SignedDistanceToPoint( Distance from point to axis segment minus radius. Negative signifies interior penetration.
         T SignedDistanceToPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -426,6 +428,7 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ContainsPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        /// TEACHING API: ContainsPoint( Check whether point-axis distance is no larger than radius; a zero axis length reduces to a sphere.
         bool ContainsPoint(
             const Vector3<T>& point) const noexcept
         {
