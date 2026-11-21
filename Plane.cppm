@@ -1,3 +1,7 @@
+// TEACHING MODULE: Plane equation dot(n,p)+d=0. Signed distance has units of length
+// only for unit normal n; positive side points in normal direction. The
+// frustum contains six inward-facing planes. Ray-plane intersection, contact
+// normals and projection reuse this definition.
 module;
 
 #include <cassert>
