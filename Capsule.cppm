@@ -1,3 +1,9 @@
+// TEACHING MAP — Capsule.cppm
+// Capsule geometric primitive (segment plus radius), used by character controllers and
+// narrowphase distance checks. Endcap and cylinder distance conventions share
+// Segment/ClosestPoint helpers.
+// See READING_ORDER.md for public math APIs, caller modules and test coverage.
+
 module;
 
 #include <cassert>
