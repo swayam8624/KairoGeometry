@@ -1,3 +1,8 @@
+// TEACHING NOTE:
+// Combines rays and primitive geometry into hit tests. KairoSpatial and KairoPhysicsEngine use these
+// predicates while adding indexing and simulation policies.
+// See docs/SOURCE_READING_ORDER.md for related modules and tests.
+
 module;
 
 #include <cmath>
