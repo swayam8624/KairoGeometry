@@ -1,3 +1,7 @@
+// TEACHING MODULE: Narrow geometric hit/overlap predicates for pairs of rays, triangles,
+// spheres, capsules, AABBs, OBBs and planes. These algorithms give actual
+// local geometric evidence; KairoSpatial BVH/dynamic tree supplies candidate
+// pruning only. Robust parallelism, tolerances and degeneracy checks matter.
 // TEACHING MAP: Geometric intersection predicates are consumed by KairoSpatial traversal, PhysicsEngine narrowphase and RayTracer hit tests. Geometry owns exact primitive math; acceleration structures only narrow candidate sets.
 module;
 
