@@ -6,6 +6,8 @@ Follow source links sequentially. For each API/function, identify its input cont
 
 **Worked geometric exercise:** [Segment projection, triangle Voronoi regions, ray slabs, barycentric hits and OBB SAT](GEOMETRIC_WITNESSES_AND_INTERSECTIONS_LAB.md). The geometry predicate is distinct from spatial candidate pruning and physics contact solving.
 
+**Exact-ray lab:** [Ray-plane parameters, AABB slabs, barycentric ray-triangle hits and false-positive bounding boxes](EXACT_RAY_HITS_VS_BOUNDING_VOLUME_LAB.md). Follow links into KairoSpatial traversal and the RayTracer's geometry callback.
+
 ## Read in this order
 
 This is a **conceptual sequence**, not CMake's dependency order. Before
