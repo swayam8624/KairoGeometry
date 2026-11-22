@@ -38,6 +38,10 @@ export namespace kairo::foundation::geometry
     /// helper for aggregate query code.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Ray parameter is constrained to t >= 0, unlike an infinite
+    // line. This wrapper delegates to Ray's own closest-point
+    // semantics; downstream collision code expects the finite
+    // start of the ray to be respected.
     Vector3<T> ClosestPointOnRay(
         const Ray<T>& ray,
         const Vector3<T>& point) noexcept
@@ -57,6 +61,9 @@ export namespace kairo::foundation::geometry
     /// naming convention.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Orthogonally project onto the infinite plane using the plane's
+    // signed distance/normal convention. An unbounded plane has no
+    // edge clamping unlike a triangle or finite segment.
     constexpr Vector3<T> ClosestPointOnPlane(
         const Plane<T>& plane,
         const Vector3<T>& point) noexcept
@@ -75,6 +82,9 @@ export namespace kairo::foundation::geometry
     /// including the center-point fallback direction.
     template<FloatingPoint T>
     [[nodiscard]]
+    // A sphere witness lies on its curved surface, not merely on
+    // an enclosing AABB. Use Sphere::ClosestPoint's own policy for
+    // inside/center degeneracy rather than inventing a new one here.
     Vector3<T> ClosestPointOnSphere(
         const Sphere<T>& sphere,
         const Vector3<T>& point) noexcept
@@ -93,6 +103,9 @@ export namespace kairo::foundation::geometry
     /// intersection helpers.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Clamp each coordinate independently to axis-aligned min/max
+    // extents. This remains a geometric nearest point, not a shape
+    // penetration normal or a physics impulse.
     constexpr Vector3<T> ClosestPointOnAABB(
         const AABB<T>& box,
         const Vector3<T>& point) noexcept
@@ -112,6 +125,10 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: ClosestPointOnCapsule — Find closest point on capsule axis then offset toward the query by capsule radius.
+    // The capsule is a swept sphere along a segment. Its closest
+    // surface witness depends on both the closest axis point and
+    // radius; delegate this detail to the Capsule type to preserve
+    // one consistent degeneracy policy across engine consumers.
     Vector3<T> ClosestPointOnCapsule(
         const Capsule<T>& capsule,
         const Vector3<T>& point) noexcept
@@ -130,6 +147,9 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: ClosestPointOnOBB — Transform query into OBB local coordinates, clamp to a local AABB, then transform back.
+    // OBB closest-point logic operates in its oriented basis:
+    // project to local axes, clamp by half-extents, then transform
+    // the witness back. Keep the normalized-axes precondition.
     constexpr Vector3<T> ClosestPointOnOBB(
         const OBB<T>& box,
         const Vector3<T>& point) noexcept
@@ -181,6 +201,10 @@ export namespace kairo::foundation::geometry
     /// Segment module. Degenerate segments return start.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Parameterize finite segment p(t)=start+t*(end-start),
+    // minimize squared distance via dot/length^2, and clamp t
+    // to [0,1]. A zero-length segment falls back to its start.
+    // KairoPhysicsEngine uses this for capsule/segment witnesses.
     Vector3<T> ClosestPointOnSegment(
         const Vector3<T>& start,
         const Vector3<T>& end,
@@ -224,6 +248,11 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: ClosestPointOnTriangle — Partition space into triangle vertex, edge and face Voronoi regions; find the correct closest geometric witness.
+    // Partition 3D point space into the triangle's seven Voronoi
+    // regions: three vertex, three edge, one face. Dot products
+    // decide the region without first projecting outside triangle.
+    // A nearly degenerate face falls back to the closest of its
+    // three finite edges. This is useful for sphere/triangle contacts.
     Vector3<T> ClosestPointOnTriangle(
         const Triangle<T>& triangle,
         const Vector3<T>& point) noexcept
@@ -246,6 +275,9 @@ export namespace kairo::foundation::geometry
         const Vector3<T> ap =
             point - a;
 
+        // Signs of d1 and d2 determine whether the query projects
+        // beyond vertex A along both outgoing triangle directions.
+        // Similar tests for B and C cover the other vertex regions.
         const T d1 =
             Dot(ab, ap);
 
@@ -273,6 +305,9 @@ export namespace kairo::foundation::geometry
             return b;
         }
 
+        // Barycentric area expressions identify the AB edge region.
+        // If v_c <= 0 with the endpoint inequalities satisfied,
+        // return the clamped witness on AB rather than face projection.
         const T vc =
             d1 * d4 -
             d3 * d2;
@@ -342,6 +377,10 @@ export namespace kairo::foundation::geometry
                 (c - b) * w;
         }
 
+        // When the three signed region-area terms sum near zero,
+        // the triangle cannot provide a stable 2D face basis.
+        // Compare all three edge witnesses instead of dividing by
+        // a nearly zero barycentric denominator.
         const T denominator =
             va + vb + vc;
 
