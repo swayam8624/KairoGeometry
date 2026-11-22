@@ -4,11 +4,13 @@ Geometric primitives and intersection predicates; built on KairoMath.
 
 Follow source links sequentially. For each API/function, identify its input contract, owning data structure, called modules, failure modes, outputs, test and downstream consumers.
 
+**Worked geometric exercise:** [Segment projection, triangle Voronoi regions, ray slabs, barycentric hits and OBB SAT](GEOMETRIC_WITNESSES_AND_INTERSECTIONS_LAB.md). The geometry predicate is distinct from spatial candidate pruning and physics contact solving.
+
 ## Read in this order
 
 This is a **conceptual sequence**, not CMake's dependency order. Before
 changing public APIs, cross-check imports and tests. Begin with the
-[KairoMath source guide](https://github.com/swayam8624/KairoMath/blob/docs/teaching-walkthrough-20261121/docs/SOURCE_READING_ORDER.md)
+[KairoMath source guide](https://github.com/swayam8624/KairoMath/blob/master/docs/SOURCE_READING_ORDER.md)
 for vector, matrix, transform and floating-point conventions.
 
 ### Part 1 — Build and primitive meaning
