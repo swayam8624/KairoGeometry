@@ -1,6 +1,6 @@
 # KairoGeometry
 
-**Learn the geometry:** [From coordinates to geometric queries](docs/GEOMETRY_WALKTHROUGH.md) · [Linked source-reading order](docs/SOURCE_READING_ORDER.md)
+**Learn the geometry:** [From coordinates to geometric queries](docs/GEOMETRY_WALKTHROUGH.md) · [Linked source-reading order](docs/SOURCE_READING_ORDER.md) · [Closest-point, ray and SAT laboratory](docs/GEOMETRIC_WITNESSES_AND_INTERSECTIONS_LAB.md)
 
 `KairoGeometry` is the Foundation geometry layer built on top of
 `Kairo.Foundation.Math.Vector`.
