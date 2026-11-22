@@ -70,6 +70,9 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `RayPlane` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Solve plane equation n·(origin+t*dir)+distance=0 for ray t. Near-parallel
+    // direction uses epsilon; negative t belongs behind the ray origin and must be
+    // rejected even if an infinite line would cross.
     std::optional<RayHit<T>> RayPlane(
         const Ray<T>& ray,
         const Plane<T>& plane,
@@ -121,6 +124,10 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: RaySphere — Solve the quadratic |O+tD-C|^2=r^2 and choose the earliest nonnegative t; return optional hit on success.
+    // Reduce surface intersection to a quadratic in ray parameter, test
+    // discriminant and select the earliest nonnegative root. Handle rays starting
+    // inside the sphere separately from outside rays; a broad-phase sphere bound
+    // is not this exact surface hit.
     std::optional<RayHit<T>> RaySphere(
         const Ray<T>& ray,
         const Sphere<T>& sphere,
@@ -223,6 +230,10 @@ export namespace kairo::foundation::geometry
     // triangle (including u+v>1), and t<0 behind ray origin.
     // std::abs(determinant) allows both winding directions rather
     // than implicit back-face culling. Report world hit and normal.
+    // Moller-Trumbore computes barycentric coordinates by determinant/triple
+    // products. Near-zero determinant rejects parallel/degenerate triangles;
+    // u>=0,v>=0,u+v<=1 and t>=0 distinguish finite triangle/ray hit from
+    // plane/line intersection.
     std::optional<RayHit<T>> RayTriangle(
         const Ray<T>& ray,
         const Triangle<T>& triangle,
@@ -336,6 +347,9 @@ export namespace kairo::foundation::geometry
     // Intersect all three intervals; if their intersection is empty
     // there is no hit. Parallel directions require the origin to
     // lie within that slab. t>=0 implements a ray, not full line.
+    // Intersect three ray-axis slabs by updating a shared [tMin,tMax] interval. A
+    // nearly parallel axis only passes when the origin lies within that slab; a
+    // negative direction swaps entry/exit normals.
     std::optional<RayHit<T>> RayAABB(
         const Ray<T>& ray,
         const AABB<T>& box,
@@ -1419,6 +1433,9 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `AABBAABB` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    // AABB overlap uses interval overlap on all three axes, cheap enough for
+    // BVH/dynamic-tree pruning but too weak to prove actual triangle/convex shape
+    // contact. The narrowphase must test exact geometry.
     constexpr bool AABBAABB(
         const AABB<T>& lhs,
         const AABB<T>& rhs) noexcept
