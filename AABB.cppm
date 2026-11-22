@@ -302,6 +302,8 @@ export namespace kairo::foundation::geometry
 
         [[nodiscard]]
         /// TEACHING API: ContainsPoint — Compare point with each Min/Max component; an AABB is a closed axis-aligned volume, unlike an OBB.
+        // Inclusive bounds permit touching boxes and points at faces. This is a
+        // geometric box predicate, not a rotated-mesh or triangle surface test.
         constexpr bool ContainsPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -335,6 +337,9 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ContainsAABB` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        // For valid axis-aligned boxes, testing two extremal corners is sufficient for
+        // full containment. Spatial fat-proxy reuse must verify the entire current
+        // box, not only its center.
         constexpr bool ContainsAABB(
             const AABB& other) const noexcept
         {
@@ -351,6 +356,8 @@ export namespace kairo::foundation::geometry
         /// Task: provide the `ClosestPoint` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
 
         [[nodiscard]]
+        // Clamp each coordinate independently to its Min/Max interval. This closest
+        // witness supports sphere-box distance and broad geometric proximity queries.
         constexpr Vector3<T> ClosestPoint(
             const Vector3<T>& point) const noexcept
         {
@@ -392,6 +399,9 @@ export namespace kairo::foundation::geometry
         /// Input: function parameters as declared by `Expand`.
         /// Output: none; mutates this geometry value in place.
         /// Task: update the value while preserving documented geometry invariants.
+        // Widen each face uniformly. Broad-phase fat bounds can then be reused across
+        // small movements but yield extra candidate pairs; exact shape tests remain
+        // separate.
         constexpr void Expand(
             T amount) noexcept
         {
