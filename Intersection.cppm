@@ -217,6 +217,12 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: RayTriangle — Use determinant and barycentric coordinates (Möller–Trumbore style) to reject parallel rays/outside triangles.
+    // Moller-Trumbore intersection: use edge cross/determinant to
+    // solve ray parameter t and barycentric u,v directly. Reject
+    // determinant near zero (parallel/degenerate), u or v outside
+    // triangle (including u+v>1), and t<0 behind ray origin.
+    // std::abs(determinant) allows both winding directions rather
+    // than implicit back-face culling. Report world hit and normal.
     std::optional<RayHit<T>> RayTriangle(
         const Ray<T>& ray,
         const Triangle<T>& triangle,
@@ -244,6 +250,10 @@ export namespace kairo::foundation::geometry
             return std::nullopt;
         }
 
+        // Once the determinant is safely nonzero, one reciprocal
+        // converts all three scalar triple products into t,u,v.
+        // Very small determinant magnifies floating point error:
+        // epsilon is a numerical input contract, not an exact oracle.
         const T inverseDeterminant =
             T(1) / determinant;
 
@@ -321,6 +331,11 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: RayAABB — Intersect three parameter slabs, carrying shared t interval; near-parallel axes require containment checks.
+    // Ray/box slab test: each coordinate supplies an interval of
+    // ray parameter t for which the point lies between min and max.
+    // Intersect all three intervals; if their intersection is empty
+    // there is no hit. Parallel directions require the origin to
+    // lie within that slab. t>=0 implements a ray, not full line.
     std::optional<RayHit<T>> RayAABB(
         const Ray<T>& ray,
         const AABB<T>& box,
@@ -341,6 +356,9 @@ export namespace kairo::foundation::geometry
         Vector3<T> hitNormal =
             Vector3<T>::Zero();
 
+        // Update shared [tMin,tMax] for one coordinate. A negative
+        // direction swaps near/far intersections and corresponding
+        // entry-face normal. Empty intersection rejects the entire box.
         auto testAxis =
             [&](
                 T origin,
@@ -1114,6 +1132,9 @@ export namespace kairo::foundation::geometry
     /// Task: provide the `SphereSphere` operation as part of the geometry API while preserving the module's value-type, allocation-free design.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Compare squared center distance with squared summed radii,
+    // avoiding a square root. The caller's overlap/tangent equality
+    // policy matters at exactly touching spheres.
     constexpr bool SphereSphere(
         const Sphere<T>& lhs,
         const Sphere<T>& rhs) noexcept
@@ -1218,6 +1239,10 @@ export namespace kairo::foundation::geometry
     /// distance plus summed radii.
     template<FloatingPoint T>
     [[nodiscard]]
+    // Two capsules reduce to closest points on two *finite line
+    // segments* and a combined-radius threshold. Handling clamped
+    // segment parameters and degenerate zero-length axes is essential
+    // before interpreting the result as a physical contact manifold.
     bool CapsuleCapsule(
         const Capsule<T>& lhs,
         const Capsule<T>& rhs) noexcept
@@ -1740,6 +1765,11 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: TriangleTriangle — Check overlapping triangles under coplanar and noncoplanar cases, not just their axis-aligned bounds.
+    // Reject a triangle whose three vertices all lie strictly on
+    // one side of the other triangle's plane. If both are coplanar,
+    // use the dedicated planar overlap logic; otherwise test edges
+    // from each triangle against the opposite face. This is more
+    // precise than merely intersecting their bounding AABBs.
     bool TriangleTriangle(
         const Triangle<T>& lhs,
         const Triangle<T>& rhs,
@@ -1778,6 +1808,9 @@ export namespace kairo::foundation::geometry
             return false;
         }
 
+        // Coplanar triangles need a 2D-style edge/containment test.
+        // A generic 3D segment-plane intersection is ambiguous
+        // when every vertex is already on the plane.
         if (std::abs(rda) <= epsilon &&
             std::abs(rdb) <= epsilon &&
             std::abs(rdc) <= epsilon &&
@@ -1845,12 +1878,21 @@ export namespace kairo::foundation::geometry
     template<FloatingPoint T>
     [[nodiscard]]
     /// TEACHING API: OBBOBB — Use the separating axis theorem over box axes and cross axes, with epsilon for nearly parallel bases.
+    // Separating-axis theorem for oriented boxes, using 3 axes of
+    // lhs, 3 of rhs, and 9 edge-axis cross products. Express rhs
+    // basis relative to lhs and apply a small epsilon to absolute
+    // rotation terms for near-parallel robustness.
+    // A separating axis disproves overlap; passing SAT alone does
+    // not provide contact position or penetration manifold.
     bool OBBOBB(
         const OBB<T>& lhs,
         const OBB<T>& rhs,
         T epsilon =
             std::numeric_limits<T>::epsilon() * T(100)) noexcept
     {
+        // R[i][j]=dot(lhsAxis_i,rhsAxis_j) converts rhs basis
+        // projections into lhs coordinates. absRotation adds epsilon
+        // to avoid catastrophic near-parallel axis cancellation.
         T rotation[3][3] {};
         T absRotation[3][3] {};
 
